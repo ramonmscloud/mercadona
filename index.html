@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lista de Compras</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="libs/xlsx.full.min.js"></script>
+    <script src="node_modules/jspdf/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div id="auth-container" class="container">
+        <h1>Lista de Compras</h1>
+        <div class="auth-form">
+            <input type="text" id="username" placeholder="Nombre de usuario" class="login-input">
+            <button onclick="login()" class="primary-btn">Iniciar Sesión</button>
+        </div>
+    </div>
+
+    <div id="main-container" class="container hidden">
+        <header>
+            <h1>Bienvenido, <span id="user-name"></span></h1>
+            <button onclick="logout()" class="secondary-btn">Cerrar Sesión</button>
+        </header>
+
+        <div class="file-upload mobile-friendly">
+            <input type="file" id="excel-file" accept=".csv">
+            <button onclick="loadExcelFile()" class="primary-btn">Cargar Archivo CSV</button>
+            <p class="help-text">Formato del archivo CSV: "Pasillo;Artículo"<br>Ejemplo: "01 Pasillo limpieza;Gel limpiador de baño"</p>
+            <div id="upload-progress" class="progress-container hidden">
+                <progress id="progress-bar" value="0" max="100"></progress>
+                <span id="progress-text">0%</span>
+            </div>
+        </div>
+
+        <div class="controls mobile-controls">
+            <button onclick="showAllItems()" class="control-btn">Ver Todos</button>
+            <button onclick="showMyList()" class="control-btn">Ver Mi Lista</button>
+            <button onclick="generatePDF()" class="control-btn">Generar PDF</button>
+            <button onclick="confirmDeleteList()" class="delete-btn">Borrar Mi Lista</button>
+            <button id="admin-manage-products" onclick="showProductManagement()" class="admin-btn" style="display: none;">Administrar Productos</button>
+            <button id="admin-manage-users" onclick="showUserManagement()" class="admin-btn" style="display: none;">Gestión de Usuarios</button>
+        </div>
+
+        <div id="product-management" class="hidden mobile-form">
+            <h2>Administración de Productos</h2>
+            <div class="product-management-controls">
+                <input type="text" id="edit-product-name" placeholder="Nombre del producto">
+                <select id="edit-product-aisle">
+                    <!-- Pasillos se cargarán dinámicamente -->
+                </select>
+                <div class="form-buttons">
+                    <button onclick="saveProductChanges()" class="primary-btn">Guardar Cambios</button>
+                    <button onclick="hideProductManagement()" class="secondary-btn">Cancelar</button>
+                </div>
+            </div>
+            <div id="product-list" class="product-management-list">
+                <!-- Lista de productos para editar se cargará aquí -->
+            </div>
+        </div>
+
+        <div id="add-item-form" class="hidden mobile-form">
+            <h2>Añadir Nuevo Producto</h2>
+            <input type="text" id="new-item-name" placeholder="Nombre del producto">
+            <select id="new-item-aisle">
+                <!-- Pasillos se cargarán dinámicamente -->
+            </select>
+            <div class="form-buttons">
+                <button onclick="addNewItem()" class="primary-btn">Guardar</button>
+                <button onclick="hideAddItemForm()" class="secondary-btn">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Gestión de Usuarios -->
+        <div id="user-management" class="hidden mobile-form">
+            <h2>Gestión de Usuarios</h2>
+            <button id="add-user-btn" onclick="showAddUserForm()" class="primary-btn">Añadir Usuario</button>
+            <div id="user-list" class="user-management-list">
+                <!-- Lista de usuarios se cargará aquí -->
+            </div>
+            <div class="form-buttons">
+                <button onclick="hideUserManagement()" class="secondary-btn">Cerrar</button>
+            </div>
+        </div>
+
+        <!-- Formulario para añadir nuevo usuario -->
+        <div id="add-user-form" class="hidden mobile-form">
+            <h2>Añadir Nuevo Usuario</h2>
+            <input type="text" id="new-username" placeholder="Nombre de usuario">
+            <div class="form-buttons">
+                <button onclick="addNewUser()" class="primary-btn">Guardar</button>
+                <button onclick="hideAddUserForm()" class="secondary-btn">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Formulario para editar usuario -->
+        <div id="edit-user-form" class="hidden mobile-form">
+            <h2>Editar Usuario</h2>
+            <input type="text" id="edit-username" placeholder="Nombre de usuario">
+            <div class="form-buttons">
+                <button onclick="saveUserChanges()" class="primary-btn">Guardar Cambios</button>
+                <button onclick="hideEditUserForm()" class="secondary-btn">Cancelar</button>
+            </div>
+        </div>
+
+        <div id="products-container" class="mobile-products">
+            <!-- Los productos se cargarán dinámicamente aquí -->
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script src="js/user-management.js"></script>
+</body>
+</html>
