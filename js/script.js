@@ -770,14 +770,42 @@ function exportToText() {
         textContent += '\n';
     });
 
-    // Create and download the text file
-    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Lista_Compras_${currentUser}_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    try {
+        // Create text file name
+        const fileName = `Lista_Compras_${currentUser}_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.txt`;
+        
+        // For iOS devices
+        if (navigator.userAgent.match(/ipad|iphone|ipod/i)) {
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const a = document.createElement('a');
+                a.href = e.target.result;
+                a.download = fileName;
+                a.click();
+            };
+            
+            reader.readAsDataURL(blob);
+        } 
+        // For Android and other devices
+        else {
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            
+            // Append to body and trigger download
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    } catch (error) {
+        console.error('Error exporting text file:', error);
+        alert('Hubo un error al exportar el archivo. Por favor, inténtelo de nuevo.');
+    }
 }
