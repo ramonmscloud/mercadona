@@ -81,6 +81,24 @@
             <div class="form-buttons">
                 <button onclick="hideUserManagement()" class="secondary-btn">Cerrar</button>
             </div>
+            <div class="export-controls">
+                <button onclick="exportToText()" class="primary-btn">Exportar a Texto</button>
+            </div>
+            </div>
+            
+            <div id="product-management" class="hidden">
+        </div>
+
+        <div id="add-item-form" class="hidden mobile-form">
+            <h2>Añadir Nuevo Producto</h2>
+            <input type="text" id="new-item-name" placeholder="Nombre del producto">
+            <select id="new-item-aisle">
+                <!-- Pasillos se cargarán dinámicamente -->
+            </select>
+            <div class="form-buttons">
+                <button onclick="addNewItem()" class="primary-btn">Guardar</button>
+                <button onclick="hideAddItemForm()" class="secondary-btn">Cancelar</button>
+            </div>
         </div>
 
         <!-- Formulario para añadir nuevo usuario -->

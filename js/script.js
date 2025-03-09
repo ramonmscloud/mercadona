@@ -710,3 +710,74 @@ function saveProductChanges() {
         }
     }
 }
+
+
+function exportToText() {
+    // Verify if there are selected products
+    const selectedProducts = products.filter(p => p.checked);
+    if (selectedProducts.length === 0) {
+        alert('No hay productos seleccionados para exportar.');
+        return;
+    }
+
+    // Group products by aisle
+    const groupedProducts = {};
+    selectedProducts.forEach(product => {
+        if (!groupedProducts[product.aisle]) {
+            groupedProducts[product.aisle] = [];
+        }
+        groupedProducts[product.aisle].push(product);
+    });
+
+    // Sort aisles by their initial number if it exists
+    const sortedAisles = Object.keys(groupedProducts).sort((a, b) => {
+        const aNum = parseInt(a.match(/^\d+/));
+        const bNum = parseInt(b.match(/^\d+/));
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return aNum - bNum;
+        }
+        return a.localeCompare(b);
+    });
+
+    // Create text content
+    let textContent = 'Lista de Compras - Mercadona\n';
+    textContent += `Usuario: ${currentUser}\n`;
+    textContent += `Fecha: ${new Date().toLocaleDateString('es-ES')}\n\n`;
+
+    // Add products by aisle
+    sortedAisles.forEach(aisle => {
+        // Format aisle title
+        const aisleMatch = aisle.match(/^(\d+)\s+(.+)/);
+        let aisleTitle = aisle;
+        if (aisleMatch) {
+            aisleTitle = `${aisleMatch[1]} - ${aisleMatch[2]}`;
+        }
+        textContent += `${aisleTitle}\n`;
+
+        // Sort products alphabetically
+        const sortedProducts = groupedProducts[aisle].sort((a, b) => 
+            a.name.localeCompare(b.name)
+        );
+
+        // Add each product
+        sortedProducts.forEach(product => {
+            let productLine = `[ ] ${product.name}`;
+            if (product.quantity && product.quantity > 1) {
+                productLine += ` x${product.quantity}`;
+            }
+            textContent += `${productLine}\n`;
+        });
+        textContent += '\n';
+    });
+
+    // Create and download the text file
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Lista_Compras_${currentUser}_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
