@@ -318,10 +318,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
+        // Restaurar el estado de administrador desde localStorage
+        isAdmin = localStorage.getItem('isAdmin') === 'true';
         document.getElementById('user-name').textContent = savedUser;
         document.getElementById('auth-container').classList.add('hidden');
         document.getElementById('main-container').classList.remove('hidden');
         loadUserList();
+        updateAdminControls(); // Actualizar controles según el estado de administrador
     }
     
     // Añadir clase para dispositivos táctiles
@@ -483,17 +486,21 @@ function loadUserList() {
     displayProducts();
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize application state from localStorage
+window.onload = function() {
     const savedUser = localStorage.getItem('currentUser');
+    const savedIsAdmin = localStorage.getItem('isAdmin') === 'true';
+    
     if (savedUser) {
         currentUser = savedUser;
+        isAdmin = savedIsAdmin;
         document.getElementById('user-name').textContent = savedUser;
         document.getElementById('auth-container').classList.add('hidden');
         document.getElementById('main-container').classList.remove('hidden');
         loadUserList();
+        updateAdminControls();
     }
-});
+}
 
 // Función para generar un PDF con la lista de compras
 function generatePDF() {

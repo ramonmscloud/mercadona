@@ -10,6 +10,8 @@ const MAX_USERS = 5;
 // Inicializar el módulo de gestión de usuarios
 function initUserManagement() {
     loadRegisteredUsers();
+    // Make isAdmin available globally for other functions in this file
+    window.isAdmin = localStorage.getItem('isAdmin') === 'true';
 }
 
 // Cargar usuarios registrados desde localStorage
@@ -27,8 +29,9 @@ function saveRegisteredUsers() {
 
 // Mostrar el panel de gestión de usuarios
 function showUserManagement() {
-    // Access the global isAdmin variable from window object to ensure it's the same variable from script.js
-    if (!window.isAdmin) {
+    // Check if user is admin by reading from localStorage instead of window object
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (!isAdmin) {
         alert('Solo el administrador puede gestionar usuarios.');
         return;
     }
@@ -86,6 +89,13 @@ function hideAddUserForm() {
 
 // Añadir un nuevo usuario
 function addNewUser() {
+    // Check admin status from localStorage
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (!isAdmin) {
+        alert('Solo el administrador puede añadir usuarios.');
+        return;
+    }
+    
     const username = document.getElementById('new-username').value.trim();
     
     // Validaciones
@@ -125,6 +135,13 @@ function addNewUser() {
 
 // Editar un usuario existente
 function editUser(index) {
+    // Check admin status from localStorage
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (!isAdmin) {
+        alert('Solo el administrador puede editar usuarios.');
+        return;
+    }
+    
     const user = registeredUsers[index];
     if (!user) return;
     
@@ -141,6 +158,13 @@ function hideEditUserForm() {
 
 // Guardar cambios de un usuario editado
 function saveUserChanges() {
+    // Check admin status from localStorage
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (!isAdmin) {
+        alert('Solo el administrador puede modificar usuarios.');
+        return;
+    }
+    
     const usernameInput = document.getElementById('edit-username');
     const index = usernameInput.dataset.editIndex;
     const newUsername = usernameInput.value.trim();
@@ -189,6 +213,13 @@ function saveUserChanges() {
 
 // Eliminar un usuario
 function deleteUser(index) {
+    // Check admin status from localStorage
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    if (!isAdmin) {
+        alert('Solo el administrador puede eliminar usuarios.');
+        return;
+    }
+    
     if (!confirm('¿Está seguro de que desea eliminar este usuario? Se perderá su lista de compras.')) {
         return;
     }
