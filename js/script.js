@@ -2,149 +2,46 @@
  * ESTADO GLOBAL DE LA APLICACIÓN
  * Estas variables mantienen el estado de la aplicación durante la sesión del usuario
  */
-let currentUser = null;  // Usuario actual logueado
 let products = [];       // Lista de productos cargados
 let aisles = new Set();  // Conjunto de pasillos disponibles (sin duplicados)
-let isAdmin = false;     // Indica si el usuario actual tiene privilegios de administrador
+let currentUser = null;  // Usuario actual
+let isAdmin = false;     // Indica si el usuario actual es administrador
 
-/**
- * FUNCIONES DE AUTENTICACIÓN
- * Manejo de inicio y cierre de sesión de usuarios
- */
-function login() {
-    const username = document.getElementById('username').value.trim();
-    if (username) {
-        // Verificar si el usuario es admin o está registrado
-        if (username.toLowerCase() === 'admin' || isUserRegistered(username)) {
-            currentUser = username;
-            isAdmin = username.toLowerCase() === 'admin';
-            localStorage.setItem('currentUser', username);
-            localStorage.setItem('isAdmin', isAdmin);
-            document.getElementById('user-name').textContent = username;
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('main-container').classList.remove('hidden');
-            loadUserList();
-            updateAdminControls();
-        } else {
-            alert('Usuario no registrado. Por favor, contacte con el administrador.');
-        }
-    }
-}
+// Load products when the page loads
+// This function is merged with the authentication window.onload below
 
-function updateAdminControls() {
-    // Hide all admin-only elements for non-admin users
-    const adminElements = [
-        document.getElementById('admin-manage-products'),
-        document.getElementById('admin-manage-users'),
-        document.querySelector('.file-upload'),
-        document.querySelector('button[onclick="showAddItemForm()"]'),
-        document.getElementById('product-management'),
-        document.getElementById('add-item-form')
-    ];
-
-    adminElements.forEach(element => {
-        if (element) {
-            element.style.display = isAdmin ? 'block' : 'none';
-        }
-    });
-
-    // Ensure product management and add item forms are hidden for non-admin users
-    if (!isAdmin) {
-        document.getElementById('product-management').classList.add('hidden');
-        document.getElementById('add-item-form').classList.add('hidden');
-        document.getElementById('user-management').classList.add('hidden');
-    }
-}
-
-function logout() {
-    // Reset user state
-    currentUser = null;
-    isAdmin = false;
-    products = [];
-    aisles = new Set();
-
-    // Clear local storage
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAdmin');
-    localStorage.removeItem('products');
-    localStorage.removeItem('userList');
-
-    // Reset UI elements
-    document.getElementById('auth-container').classList.remove('hidden');
-    document.getElementById('main-container').classList.add('hidden');
-    document.getElementById('username').value = '';
-    document.getElementById('product-management').classList.add('hidden');
-    document.getElementById('add-item-form').classList.add('hidden');
-
-    // Clear any displayed products
-    document.getElementById('products-container').innerHTML = '';
-}
-
-// Funciones de manejo de archivos Excel
-async function loadExcelFile() {
-    if (!isAdmin) {
-        alert('Solo el administrador puede cargar archivos.');
-        return;
-    }
-    const fileInput = document.getElementById('excel-file');
-    const file = fileInput.files[0];
-    if (!file) {
-        alert('Por favor, seleccione un archivo');
-        return;
-    }
-
-    const progressContainer = document.getElementById('upload-progress');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-    progressContainer.classList.remove('hidden');
-
+// Function to load products from the CSV file
+async function loadProductsFromFile() {
     try {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const content = e.target.result;
-                // Dividir por líneas y luego por punto y coma
-                const rows = content.split('\n').map(row => row.split(';'));
-                // Filtrar filas vacías o con formato incorrecto
-                const jsonData = rows.slice(1)
-                    .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
-                    .map(row => ({
-                        // Ajustar el mapeo para que coincida con la estructura del CSV (Pasillo;Artículo)
-                        Producto: row[1]?.trim() || '',
-                        Pasillo: row[0]?.trim() || 'Sin Pasillo'
-                    }));
-                
-                processExcelData(jsonData);
-                progressBar.value = 100;
-                progressText.textContent = '100%';
-                setTimeout(() => {
-                    progressContainer.classList.add('hidden');
-                    progressBar.value = 0;
-                    progressText.textContent = '0%';
-                }, 1000);
-            } catch (error) {
-                alert('Error al procesar el archivo: ' + error.message);
-                progressContainer.classList.add('hidden');
-            }
-        };
-
-        reader.onprogress = function(e) {
-            if (e.lengthComputable) {
-                const percentLoaded = Math.round((e.loaded / e.total) * 100);
-                progressBar.value = percentLoaded;
-                progressText.textContent = percentLoaded + '%';
-            }
-        };
-
-        reader.onerror = function() {
-            alert('Error al leer el archivo');
-            progressContainer.classList.add('hidden');
-        };
-
-        reader.readAsText(file);
+        const response = await fetch('compra mercadona.csv');
+        const content = await response.text();
+        
+        // Process the CSV content
+        const rows = content.split('\n').map(row => row.split(';'));
+        const jsonData = rows.slice(1)
+            .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
+            .map(row => ({
+                Producto: row[1]?.trim() || '',
+                Pasillo: row[0]?.trim() || 'Sin Pasillo'
+            }));
+        
+        processExcelData(jsonData);
     } catch (error) {
-        alert('Error al cargar el archivo: ' + error.message);
-        progressContainer.classList.add('hidden');
+        console.error('Error loading products:', error);
+        alert('Error al cargar los productos. Por favor, inténtelo de nuevo más tarde.');
+    }
+}
+
+// Function to load saved list from localStorage
+function loadSavedList() {
+    const savedList = localStorage.getItem('shopping_list');
+    if (savedList) {
+        const savedProducts = JSON.parse(savedList);
+        products = products.map(p => {
+            const savedProduct = savedProducts.find(sp => sp.name === p.name);
+            return savedProduct ? {...p, ...savedProduct} : p;
+        });
+        displayProducts();
     }
 }
 
@@ -172,50 +69,20 @@ function processExcelData(data) {
     displayProducts();
 }
 
-// Funciones de gestión de productos
-function showAddItemForm() {
-    if (!isAdmin) {
-        alert('Solo el administrador puede añadir nuevos productos.');
-        return;
-    }
-    document.getElementById('add-item-form').classList.remove('hidden');
-}
-
-function hideAddItemForm() {
-    document.getElementById('add-item-form').classList.add('hidden');
-}
-
-function addNewItem() {
-    const name = document.getElementById('new-item-name').value.trim();
-    const aisle = document.getElementById('new-item-aisle').value;
-
-    if (name && aisle) {
-        products.push({
-            name,
-            aisle,
-            checked: false,
-            quantity: 0 // Default quantity value is 0 when unchecked
-        });
-
-        saveData();
-        displayProducts();
-        hideAddItemForm();
-        document.getElementById('new-item-name').value = '';
+// Save data to localStorage
+function saveData() {
+    const savedProducts = products.map(p => ({
+        name: p.name,
+        aisle: p.aisle,
+        checked: p.checked,
+        quantity: p.quantity || 0
+    }));
+    // Save to user-specific storage if user is logged in
+    if (currentUser) {
+        localStorage.setItem(`products_${currentUser}`, JSON.stringify(savedProducts));
     } else {
-        // Show error if name or aisle is missing
-        alert('Por favor, ingrese un nombre de producto y seleccione un pasillo.');
+        localStorage.setItem('shopping_list', JSON.stringify(savedProducts));
     }
-}
-
-function updateAisleSelect() {
-    const select = document.getElementById('new-item-aisle');
-    select.innerHTML = '';
-    Array.from(aisles).sort().forEach(aisle => {
-        const option = document.createElement('option');
-        option.value = aisle;
-        option.textContent = aisle;
-        select.appendChild(option);
-    });
 }
 
 // Funciones de visualización
@@ -230,11 +97,7 @@ function displayProducts(showOnlyChecked = false) {
                 groupedProducts[product.aisle] = [];
             }
             groupedProducts[product.aisle].push(product);
-            // Hide edit/delete buttons for non-admin users
-            if (!isAdmin) {
-                const editButtons = document.querySelectorAll('.edit-btn, .delete-btn');
-                editButtons.forEach(btn => btn.style.display = 'none');
-            }
+
         }
     });
 
@@ -318,20 +181,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
         currentUser = savedUser;
-        // Restaurar el estado de administrador desde localStorage
         isAdmin = localStorage.getItem('isAdmin') === 'true';
         document.getElementById('user-name').textContent = savedUser;
         document.getElementById('auth-container').classList.add('hidden');
         document.getElementById('main-container').classList.remove('hidden');
         loadUserList();
-        updateAdminControls(); // Actualizar controles según el estado de administrador
+        updateAdminControls();
     }
     
-    // Añadir clase para dispositivos táctiles
     if (isTouchDevice()) {
         document.body.classList.add('touch-device');
     }
 });
+
+
+
 function toggleProduct(productName) {
     const product = products.find(p => p.name === productName);
     if (product) {
@@ -433,14 +297,15 @@ function confirmDeleteList() {
 }
 
 function clearUserList() {
-    // Desmarcar todos los productos
+    // Desmarcar todos los productos y resetear cantidades
     products.forEach(product => {
         product.checked = false;
+        product.quantity = 0;
     });
     
     // Guardar cambios y actualizar la vista
     saveData();
-    displayProducts();
+    displayProducts(false); // Explicitly show all products after clearing the list
     alert('Tu lista ha sido borrada correctamente.');
 }
 
@@ -488,6 +353,10 @@ function loadUserList() {
 
 // Initialize application state from localStorage
 window.onload = function() {
+    // Load products from CSV file first
+    loadProductsFromFile();
+    
+    // Then handle authentication
     const savedUser = localStorage.getItem('currentUser');
     const savedIsAdmin = localStorage.getItem('isAdmin') === 'true';
     
@@ -499,6 +368,12 @@ window.onload = function() {
         document.getElementById('main-container').classList.remove('hidden');
         loadUserList();
         updateAdminControls();
+    } else {
+        // Initialize default values for non-authenticated users
+        currentUser = 'guest';
+        isAdmin = false;
+        // Display products directly without requiring authentication
+        showAllItems();
     }
 }
 
@@ -808,4 +683,21 @@ function exportToText() {
         console.error('Error exporting text file:', error);
         alert('Hubo un error al exportar el archivo. Por favor, inténtelo de nuevo.');
     }
+}
+
+// Function to update the aisle select dropdown in the UI
+function updateAisleSelect() {
+    // This function is called when aisles are loaded or changed
+    // It doesn't need to do anything in the current implementation
+    // as the aisle selectors are generated dynamically in the displayProducts function
+    console.log('Aisles updated:', Array.from(aisles));
+}
+
+// Function to update admin controls visibility based on user role
+function updateAdminControls() {
+    // This function is called when user authentication status changes
+    // It should show/hide admin-specific controls based on isAdmin status
+    console.log('Admin status updated:', isAdmin);
+    // Since there are no specific admin controls in the current HTML, this is just a placeholder
+    // If admin controls are added later, they can be shown/hidden here
 }
