@@ -13,8 +13,13 @@ let isAdmin = false;     // Indica si el usuario actual es administrador
 // Function to load products from the CSV file
 async function loadProductsFromFile() {
     try {
+        console.log('Intentando cargar productos desde CSV...');
         const response = await fetch('compra mercadona.csv');
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
         const content = await response.text();
+        console.log('CSV cargado correctamente, procesando datos...');
         
         // Process the CSV content
         const rows = content.split('\n').map(row => row.split(';'));
@@ -25,6 +30,7 @@ async function loadProductsFromFile() {
                 Pasillo: row[0]?.trim() || 'Sin Pasillo'
             }));
         
+        console.log(`Datos procesados: ${jsonData.length} productos encontrados`);
         processExcelData(jsonData);
     } catch (error) {
         console.error('Error loading products:', error);
@@ -46,6 +52,7 @@ function loadSavedList() {
 }
 
 function processExcelData(data) {
+    console.log('Procesando datos de productos...');
     products = data
         .filter(row => row.Producto && row.Producto.trim() !== '') // First filter out rows without a product name
         .map(row => {
@@ -61,9 +68,11 @@ function processExcelData(data) {
                 checked: false,
                 quantity: 0 // Default quantity value is 0 when unchecked
             };
-        })
+        });
 
+    console.log(`Productos procesados: ${products.length}`);
     aisles = new Set(products.map(p => p.aisle));
+    console.log(`Pasillos encontrados: ${aisles.size}`);
     updateAisleSelect();
     saveData();
     displayProducts();
@@ -87,7 +96,14 @@ function saveData() {
 
 // Funciones de visualización
 function displayProducts(showOnlyChecked = false) {
+    console.log(`Mostrando productos (solo marcados: ${showOnlyChecked})`);
+    console.log(`Total de productos disponibles: ${products.length}`);
+    
     const container = document.getElementById('products-container');
+    if (!container) {
+        console.error('Error: No se encontró el contenedor de productos');
+        return;
+    }
     container.innerHTML = '';
 
     const groupedProducts = {};
@@ -97,9 +113,11 @@ function displayProducts(showOnlyChecked = false) {
                 groupedProducts[product.aisle] = [];
             }
             groupedProducts[product.aisle].push(product);
-
         }
     });
+
+    const aisleCount = Object.keys(groupedProducts).length;
+    console.log(`Pasillos a mostrar: ${aisleCount}`);
 
     // Ordenar los pasillos por su número inicial si existe
     const sortedAisles = Object.keys(groupedProducts).sort((a, b) => {
@@ -163,6 +181,8 @@ function displayProducts(showOnlyChecked = false) {
 
         container.appendChild(section);
     });
+    
+    console.log('Visualización de productos completada');
 }
 
 // Función para mostrar/ocultar el selector de pasillo en móviles
@@ -178,17 +198,6 @@ function isTouchDevice() {
 
 // Inicialización con detección de dispositivo táctil
 document.addEventListener('DOMContentLoaded', () => {
-    const savedUser = localStorage.getItem('currentUser');
-    if (savedUser) {
-        currentUser = savedUser;
-        isAdmin = localStorage.getItem('isAdmin') === 'true';
-        document.getElementById('user-name').textContent = savedUser;
-        document.getElementById('auth-container').classList.add('hidden');
-        document.getElementById('main-container').classList.remove('hidden');
-        loadUserList();
-        updateAdminControls();
-    }
-    
     if (isTouchDevice()) {
         document.body.classList.add('touch-device');
     }
