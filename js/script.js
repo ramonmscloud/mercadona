@@ -6,6 +6,7 @@ let products = [];       // Lista de productos cargados
 let aisles = new Set();  // Conjunto de pasillos disponibles (sin duplicados)
 let currentUser = null;  // Usuario actual
 let isAdmin = false;     // Indica si el usuario actual es administrador
+let listObservations = ''; // Observaciones de la lista
 
 // Load products when the page loads
 // This function is merged with the authentication window.onload below
@@ -47,6 +48,11 @@ function loadSavedList() {
             const savedProduct = savedProducts.find(sp => sp.name === p.name);
             return savedProduct ? {...p, ...savedProduct} : p;
         });
+        
+        // Load observations
+        listObservations = savedData.observations || '';
+        document.getElementById('list-observations').value = listObservations;
+        
         displayProducts();
     }
 }
@@ -88,6 +94,14 @@ function saveData() {
         quantity: p.quantity || 0
     }));
     
+    // Get observations
+    listObservations = document.getElementById('list-observations').value;
+    
+    const saveData = {
+        products: savedProducts,
+        observations: listObservations
+    };
+    
     // Log the number of checked products for debugging
     const checkedCount = savedProducts.filter(p => p.checked).length;
     console.log(`Guardando ${savedProducts.length} productos (${checkedCount} seleccionados)`);
@@ -98,10 +112,10 @@ function saveData() {
             localStorage.setItem('master_products_list', JSON.stringify(products));
             console.log('Lista maestra guardada (admin)');
         }
-        localStorage.setItem(`products_${currentUser}`, JSON.stringify(savedProducts));
+        localStorage.setItem(`products_${currentUser}`, JSON.stringify(saveData));
         console.log(`Lista guardada para usuario: ${currentUser}`);
     } else {
-        localStorage.setItem('shopping_list', JSON.stringify(savedProducts));
+        localStorage.setItem('shopping_list', JSON.stringify(saveData));
         console.log('Lista guardada para usuario anónimo');
     }
 }
@@ -344,6 +358,10 @@ function clearUserList() {
         quantity: 0
     }));
     
+    // Clear observations
+    listObservations = '';
+    document.getElementById('list-observations').value = '';
+    
     // Clear user-specific data from localStorage
     if (currentUser) {
         localStorage.removeItem(`products_${currentUser}`);
@@ -363,7 +381,7 @@ function clearUserList() {
     // Save the updated products list
     saveData();
     
-    // Force UI refresh by explicitly updating checkboxes and quantity inputs
+    // Ensure all checkboxes and quantity inputs are reset immediately
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     const quantityInputs = document.querySelectorAll('.quantity-input');
     
@@ -372,12 +390,12 @@ function clearUserList() {
     });
     
     quantityInputs.forEach(input => {
-        input.value = 0;
+        input.value = '0';
         input.disabled = true;
     });
     
-    // Update the display to show all products
-    displayProducts();
+    // Force immediate UI refresh after DOM elements are updated
+    displayProducts(false);
     
     // Show confirmation message
     alert('Tu lista ha sido borrada correctamente.');
@@ -389,11 +407,14 @@ function clearUserList() {
 
 function loadUserList() {
     // Primero intentamos cargar la lista específica del usuario
-    const savedProducts = localStorage.getItem(`products_${currentUser}`);
+    const savedData = localStorage.getItem(`products_${currentUser}`);
     
-    if (savedProducts) {
+    if (savedData) {
         // El usuario tiene su propia lista guardada
-        products = JSON.parse(savedProducts);
+        const parsedData = JSON.parse(savedData);
+        products = parsedData.products || [];
+        listObservations = parsedData.observations || '';
+        document.getElementById('list-observations').value = listObservations;
     } else {
         // Si el usuario no tiene lista propia, intentamos cargar la lista maestra
         const masterProducts = localStorage.getItem('master_products_list');
@@ -404,11 +425,16 @@ function loadUserList() {
                 checked: false,
                 quantity: 0
             }));
+            // Reseteamos las observaciones para el nuevo usuario
+            listObservations = '';
+            document.getElementById('list-observations').value = '';
             // Guardamos esta nueva lista para el usuario
             saveData();
         } else {
             // No hay lista maestra ni de usuario, inicializamos vacía
             products = [];
+            listObservations = '';
+            document.getElementById('list-observations').value = '';
         }
     }
     
@@ -649,229 +675,128 @@ function saveProductChanges() {
 
 
 function exportToText() {
-    // Verify if there are selected products
-    const selectedProducts = products.filter(p => p.checked);
-    if (selectedProducts.length === 0) {
+    // Get checked products
+    const checkedProducts = products.filter(p => p.checked);
+    if (checkedProducts.length === 0) {
         alert('No hay productos seleccionados para exportar.');
         return;
     }
 
     // Group products by aisle
     const groupedProducts = {};
-    selectedProducts.forEach(product => {
+    checkedProducts.forEach(product => {
         if (!groupedProducts[product.aisle]) {
             groupedProducts[product.aisle] = [];
         }
-        groupedProducts[product.aisle].push(product);
-    });
-
-    // Sort aisles by their initial number if it exists
-    const sortedAisles = Object.keys(groupedProducts).sort((a, b) => {
-        const aNum = parseInt(a.match(/^\d+/));
-        const bNum = parseInt(b.match(/^\d+/));
-        if (!isNaN(aNum) && !isNaN(bNum)) {
-            return aNum - bNum;
-        }
-        return a.localeCompare(b);
+        groupedProducts[product.aisle].push({
+            name: product.name,
+            quantity: product.quantity || 1
+        });
     });
 
     // Create text content
-    let textContent = 'Lista de Compras - Mercadona\n';
-    textContent += `Usuario: ${currentUser}\n`;
-    textContent += `Fecha: ${new Date().toLocaleDateString('es-ES')}\n\n`;
+    let textContent = 'LISTA DE COMPRAS\n\n';
 
-    // Add products by aisle
-    sortedAisles.forEach(aisle => {
-        // Format aisle title
-        const aisleMatch = aisle.match(/^(\d+)\s+(.+)/);
-        let aisleTitle = aisle;
-        if (aisleMatch) {
-            aisleTitle = `${aisleMatch[1]} - ${aisleMatch[2]}`;
-        }
-        textContent += `${aisleTitle}\n`;
-
-        // Sort products alphabetically
-        const sortedProducts = groupedProducts[aisle].sort((a, b) => 
-            a.name.localeCompare(b.name)
-        );
-
-        // Add each product
-        sortedProducts.forEach(product => {
-            let productLine = `[ ] ${product.name}`;
-            if (product.quantity && product.quantity > 1) {
-                productLine += ` x${product.quantity}`;
-            }
-            textContent += `${productLine}\n`;
+    // Add products grouped by aisle
+    Object.keys(groupedProducts).sort().forEach(aisle => {
+        textContent += `${aisle}:\n`;
+        groupedProducts[aisle].sort((a, b) => a.name.localeCompare(b.name)).forEach(product => {
+            textContent += `- ${product.name} (${product.quantity})\n`;
         });
         textContent += '\n';
     });
 
-    try {
-        // Create text file name
-        const fileName = `Lista_Compras_${currentUser}_${new Date().toLocaleDateString('es-ES').replace(/\//g, '-')}.txt`;
-        
-        // For iOS devices
-        if (navigator.userAgent.match(/ipad|iphone|ipod/i)) {
-            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const a = document.createElement('a');
-                a.href = e.target.result;
-                a.download = fileName;
-                a.click();
-            };
-            
-            reader.readAsDataURL(blob);
-        } 
-        // For Android and other devices
-        else {
-            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            
-            // Append to body and trigger download
-            document.body.appendChild(a);
-            a.click();
-            
-            // Cleanup
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-    } catch (error) {
-        console.error('Error exporting text file:', error);
-        alert('Hubo un error al exportar el archivo. Por favor, inténtelo de nuevo.');
+    // Add observations if they exist
+    const observations = document.getElementById('list-observations').value.trim();
+    if (observations) {
+        textContent += '\nOBSERVACIONES:\n';
+        textContent += observations + '\n';
     }
+
+    // Create and download the text file
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'lista_compra.txt';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }
 
-// Function to update the aisle select dropdown in the UI
-function updateAisleSelect() {
-    // This function is called when aisles are loaded or changed
-    // It doesn't need to do anything in the current implementation
-    // as the aisle selectors are generated dynamically in the displayProducts function
-    console.log('Aisles updated:', Array.from(aisles));
-}
-
-// Function to update admin controls visibility based on user role
-function updateAdminControls() {
-    // This function is called when user authentication status changes
-    // It should show/hide admin-specific controls based on isAdmin status
-    console.log('Admin status updated:', isAdmin);
-    // Since there are no specific admin controls in the current HTML, this is just a placeholder
-    // If admin controls are added later, they can be shown/hidden here
-}
-
-// Función para cargar archivo de texto
-function loadTextFile() {
+async function loadTextFile() {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.txt';
-    
-    input.onchange = function(e) {
+
+    input.onchange = async function(e) {
         const file = e.target.files[0];
         if (!file) return;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const content = e.target.result;
-            const lines = content.split('\n');
-            
-            console.log(`Procesando archivo de texto con ${lines.length} líneas`);
-            
-            let currentAisle = '';
-            // Skip header lines (Lista de Compras, Usuario, Fecha)
-            let startProcessing = false;
-            let productsFound = 0;
-            let productsUpdated = 0;
-            
-            // First pass: find where the actual product list starts
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!startProcessing && line === '') {
-                    startProcessing = true;
-                    console.log(`Comenzando a procesar productos desde la línea ${i+1}`);
-                    continue;
-                }
+
+        const text = await file.text();
+        const lines = text.split('\n');
+
+        let currentAisle = '';
+        let isObservations = false;
+        let observations = [];
+
+        // Reset all products to unchecked
+        products.forEach(p => {
+            p.checked = false;
+            p.quantity = 0;
+        });
+
+        // Parse the text file
+        for (let line of lines) {
+            line = line.trim();
+            if (!line) continue;
+
+            if (line.toLowerCase() === 'observaciones:') {
+                isObservations = true;
+                continue;
+            }
+
+            if (isObservations) {
+                observations.push(line);
+                continue;
+            }
+
+            if (line.endsWith(':')) {
+                currentAisle = line.slice(0, -1);
+                continue;
+            }
+
+            if (line.startsWith('-')) {
+                const productLine = line.slice(1).trim();
+                const match = productLine.match(/(.+?)\s*\((\d+)\)/);
                 
-                if (startProcessing) {
-                    // Check if line is an aisle header (doesn't start with [ ])
-                    if (line && !line.startsWith('[ ]') && !line.startsWith('[]')) {
-                        currentAisle = line;
-                        console.log(`Pasillo encontrado: ${currentAisle}`);
-                    }
-                    // Check if line is a product entry
-                    else if (line && (line.startsWith('[ ]') || line.startsWith('[]'))) {
-                        productsFound++;
-                        // Extract product name and quantity
-                        let productInfo = line.substring(line.indexOf(']') + 1).trim();
-                        let productName = productInfo;
-                        let quantity = 1;
-                        
-                        // Check if there's a quantity specified
-                        const quantityMatch = productInfo.match(/(.+)\s*x(\d+)$/);
-                        if (quantityMatch) {
-                            productName = quantityMatch[1].trim();
-                            quantity = parseInt(quantityMatch[2]);
-                            console.log(`Producto con cantidad: ${productName} x${quantity}`);
-                        } else {
-                            console.log(`Producto sin cantidad especificada: ${productName}`);
-                        }
-                        
-                        // Find and update the product with improved matching
-                        let matchedProduct = null;
-                        
-                        // First try exact match
-                        matchedProduct = products.find(p => 
-                            p.name.toLowerCase() === productName.toLowerCase()
-                        );
-                        
-                        // If no exact match, try partial matches
-                        if (!matchedProduct) {
-                            // Try to find products that contain the name or vice versa
-                            const possibleMatches = products.filter(p => 
-                                p.name.toLowerCase().includes(productName.toLowerCase()) ||
-                                productName.toLowerCase().includes(p.name.toLowerCase())
-                            );
-                            
-                            if (possibleMatches.length === 1) {
-                                // If only one match, use it
-                                matchedProduct = possibleMatches[0];
-                            } else if (possibleMatches.length > 1) {
-                                // If multiple matches, find the closest one
-                                matchedProduct = possibleMatches.reduce((best, current) => {
-                                    const bestDiff = Math.abs(best.name.length - productName.length);
-                                    const currentDiff = Math.abs(current.name.length - productName.length);
-                                    return currentDiff < bestDiff ? current : best;
-                                }, possibleMatches[0]);
-                            }
-                        }
-                        
-                        if (matchedProduct) {
-                            matchedProduct.checked = true;
-                            matchedProduct.quantity = quantity;
-                            productsUpdated++;
-                            console.log(`Producto actualizado: ${matchedProduct.name} (cantidad: ${quantity})`);
-                        } else {
-                            console.log(`Producto no encontrado en la base de datos: ${productName}`);
-                        }
+                if (match) {
+                    const productName = match[1].trim();
+                    const quantity = parseInt(match[2]);
+
+                    const product = products.find(p => 
+                        p.name.toLowerCase() === productName.toLowerCase() && 
+                        p.aisle === currentAisle
+                    );
+
+                    if (product) {
+                        product.checked = true;
+                        product.quantity = quantity;
                     }
                 }
             }
-            
-            console.log(`Procesamiento completado: ${productsFound} productos encontrados, ${productsUpdated} actualizados`);
-            
-            // Ensure UI updates
-            saveData();
-            displayProducts();
-            
-            // Show confirmation message
-            alert(`Lista cargada: ${productsUpdated} productos actualizados de ${productsFound} encontrados en el archivo.`);
-        };
-        
-        reader.readAsText(file);
+        }
+
+        // Set observations
+        const observationsText = observations.join('\n');
+        document.getElementById('list-observations').value = observationsText;
+        listObservations = observationsText;
+
+        // Save and display
+        saveData();
+        displayProducts();
     };
-    
+
     input.click();
 }

@@ -20,7 +20,8 @@ const MIME_TYPES = {
     '.css': 'text/css',
     '.js': 'text/javascript',
     '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    '.json': 'application/json'
+    '.json': 'application/json',
+    '.csv': 'text/csv'
 };
 
 // Creación del servidor HTTP
