@@ -80,17 +80,29 @@ function processExcelData(data) {
 
 // Save data to localStorage
 function saveData() {
+    console.log('Guardando datos en localStorage...');
     const savedProducts = products.map(p => ({
         name: p.name,
         aisle: p.aisle,
         checked: p.checked,
         quantity: p.quantity || 0
     }));
+    
+    // Log the number of checked products for debugging
+    const checkedCount = savedProducts.filter(p => p.checked).length;
+    console.log(`Guardando ${savedProducts.length} productos (${checkedCount} seleccionados)`);
+    
     // Save to user-specific storage if user is logged in
     if (currentUser) {
+        if (isAdmin) {
+            localStorage.setItem('master_products_list', JSON.stringify(products));
+            console.log('Lista maestra guardada (admin)');
+        }
         localStorage.setItem(`products_${currentUser}`, JSON.stringify(savedProducts));
+        console.log(`Lista guardada para usuario: ${currentUser}`);
     } else {
         localStorage.setItem('shopping_list', JSON.stringify(savedProducts));
+        console.log('Lista guardada para usuario anónimo');
     }
 }
 
@@ -206,27 +218,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function toggleProduct(productName) {
+    console.log(`Toggling product: ${productName}`);
     const product = products.find(p => p.name === productName);
     if (product) {
         product.checked = !product.checked;
         // Set quantity to 1 when checked, 0 when unchecked
         if (product.checked) {
             product.quantity = 1;
+            console.log(`Producto marcado: ${product.name}, cantidad: ${product.quantity}`);
         } else {
             product.quantity = 0;
+            console.log(`Producto desmarcado: ${product.name}, cantidad: ${product.quantity}`);
         }
-        saveData();
+        
         // Update the quantity input field in the UI
         const quantityInput = document.querySelector(`input[type="number"][onchange*="${productName.replace(/'/g, "\\'")}"]`);
         if (quantityInput) {
             quantityInput.value = product.quantity;
             // Enable/disable the quantity input based on checkbox state
             quantityInput.disabled = !product.checked;
+            console.log(`Campo de cantidad actualizado: ${quantityInput.value}, disabled: ${quantityInput.disabled}`);
+        } else {
+            console.warn(`No se encontró el campo de cantidad para: ${productName}`);
         }
+        
+        // Save changes to localStorage
+        saveData();
+        
+        // Force a complete UI refresh to ensure all changes are reflected
+        displayProducts();
+    } else {
+        console.error(`Producto no encontrado: ${productName}`);
     }
 }
 
 function updateQuantity(productName, quantity) {
+    console.log(`Actualizando cantidad para: ${productName} a ${quantity}`);
     const product = products.find(p => p.name === productName);
     if (product) {
         // Parse the quantity as an integer
@@ -237,33 +264,35 @@ function updateQuantity(productName, quantity) {
             product.checked = true;
             // Ensure quantity is between 1 and 25
             qty = Math.min(Math.max(qty, 1), 25);
-            // Update checkbox in UI
-            const checkbox = document.getElementById(product.name.replace(/"/g, '&quot;'));
-            if (checkbox) {
-                checkbox.checked = true;
-            }
         } else {
             // If quantity is 0, uncheck the product
             product.checked = false;
             qty = 0;
-            // Update checkbox in UI
-            const checkbox = document.getElementById(product.name.replace(/"/g, '&quot;'));
-            if (checkbox) {
-                checkbox.checked = false;
-            }
         }
         
         product.quantity = qty;
         
-        // Update the input field value to reflect the validated quantity
+        // Update the UI
+        const checkbox = document.getElementById(product.name.replace(/"/g, '&quot;'));
+        if (checkbox) {
+            checkbox.checked = product.checked;
+        }
+        
         const quantityInput = document.querySelector(`input[type="number"][onchange*="${productName.replace(/'/g, "\\'")}"]`);
         if (quantityInput) {
             quantityInput.value = qty;
-            // Enable/disable the quantity input based on checkbox state
             quantityInput.disabled = !product.checked;
         }
         
+        // Save changes to localStorage
         saveData();
+        
+        // Force a complete UI refresh to ensure all changes are reflected
+        displayProducts();
+        
+        console.log(`Producto actualizado: ${product.name}, checked: ${product.checked}, quantity: ${product.quantity}`);
+    } else {
+        console.error(`Producto no encontrado: ${productName}`);
     }
 }
 
@@ -306,29 +335,57 @@ function confirmDeleteList() {
 }
 
 function clearUserList() {
-    // Desmarcar todos los productos y resetear cantidades
-    products.forEach(product => {
-        product.checked = false;
-        product.quantity = 0;
+    console.log('Borrando lista de usuario...');
+    
+    // Reset all products to their initial state
+    products = products.map(product => ({
+        ...product,
+        checked: false,
+        quantity: 0
+    }));
+    
+    // Clear user-specific data from localStorage
+    if (currentUser) {
+        localStorage.removeItem(`products_${currentUser}`);
+        // Reload from master list if available
+        const masterProducts = localStorage.getItem('master_products_list');
+        if (masterProducts) {
+            products = JSON.parse(masterProducts).map(product => ({
+                ...product,
+                checked: false,
+                quantity: 0
+            }));
+        }
+    } else {
+        localStorage.removeItem('shopping_list');
+    }
+    
+    // Save the updated products list
+    saveData();
+    
+    // Force UI refresh by explicitly updating checkboxes and quantity inputs
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
     });
     
-    // Guardar cambios y actualizar la vista
-    saveData();
-    displayProducts(false); // Explicitly show all products after clearing the list
+    quantityInputs.forEach(input => {
+        input.value = 0;
+        input.disabled = true;
+    });
+    
+    // Update the display to show all products
+    displayProducts();
+    
+    // Show confirmation message
     alert('Tu lista ha sido borrada correctamente.');
+    console.log('Lista borrada correctamente');
 }
 
 // Funciones de persistencia de datos
-function saveData() {
-    if (currentUser) {
-        // Si es admin, guardar también en la lista maestra de productos
-        if (isAdmin) {
-            localStorage.setItem('master_products_list', JSON.stringify(products));
-        }
-        // Guardar la lista específica del usuario (con sus selecciones)
-        localStorage.setItem(`products_${currentUser}`, JSON.stringify(products));
-    }
-}
+// This function has been moved to the main saveData() implementation above
 
 function loadUserList() {
     // Primero intentamos cargar la lista específica del usuario
@@ -360,29 +417,24 @@ function loadUserList() {
     displayProducts();
 }
 
-// Initialize application state from localStorage
-window.onload = function() {
-    // Load products from CSV file first
-    loadProductsFromFile();
-    
-    // Then handle authentication
-    const savedUser = localStorage.getItem('currentUser');
-    const savedIsAdmin = localStorage.getItem('isAdmin') === 'true';
-    
-    if (savedUser) {
-        currentUser = savedUser;
-        isAdmin = savedIsAdmin;
-        document.getElementById('user-name').textContent = savedUser;
-        document.getElementById('auth-container').classList.add('hidden');
-        document.getElementById('main-container').classList.remove('hidden');
-        loadUserList();
-        updateAdminControls();
-    } else {
-        // Initialize default values for non-authenticated users
-        currentUser = 'guest';
-        isAdmin = false;
-        // Display products directly without requiring authentication
-        showAllItems();
+// Initialize the application when the page loads
+window.onload = async function() {
+    console.log('Inicializando aplicación...');
+    try {
+        // Load products from CSV file
+        await loadProductsFromFile();
+        console.log('Productos cargados desde CSV');
+        
+        // Load saved list from localStorage
+        loadSavedList();
+        console.log('Lista guardada cargada desde localStorage');
+        
+        // Display products
+        displayProducts();
+        console.log('Productos mostrados en la UI');
+    } catch (error) {
+        console.error('Error durante la inicialización:', error);
+        alert('Error al inicializar la aplicación. Por favor, recarga la página.');
     }
 }
 
@@ -709,4 +761,117 @@ function updateAdminControls() {
     console.log('Admin status updated:', isAdmin);
     // Since there are no specific admin controls in the current HTML, this is just a placeholder
     // If admin controls are added later, they can be shown/hidden here
+}
+
+// Función para cargar archivo de texto
+function loadTextFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt';
+    
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            const lines = content.split('\n');
+            
+            console.log(`Procesando archivo de texto con ${lines.length} líneas`);
+            
+            let currentAisle = '';
+            // Skip header lines (Lista de Compras, Usuario, Fecha)
+            let startProcessing = false;
+            let productsFound = 0;
+            let productsUpdated = 0;
+            
+            // First pass: find where the actual product list starts
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!startProcessing && line === '') {
+                    startProcessing = true;
+                    console.log(`Comenzando a procesar productos desde la línea ${i+1}`);
+                    continue;
+                }
+                
+                if (startProcessing) {
+                    // Check if line is an aisle header (doesn't start with [ ])
+                    if (line && !line.startsWith('[ ]') && !line.startsWith('[]')) {
+                        currentAisle = line;
+                        console.log(`Pasillo encontrado: ${currentAisle}`);
+                    }
+                    // Check if line is a product entry
+                    else if (line && (line.startsWith('[ ]') || line.startsWith('[]'))) {
+                        productsFound++;
+                        // Extract product name and quantity
+                        let productInfo = line.substring(line.indexOf(']') + 1).trim();
+                        let productName = productInfo;
+                        let quantity = 1;
+                        
+                        // Check if there's a quantity specified
+                        const quantityMatch = productInfo.match(/(.+)\s*x(\d+)$/);
+                        if (quantityMatch) {
+                            productName = quantityMatch[1].trim();
+                            quantity = parseInt(quantityMatch[2]);
+                            console.log(`Producto con cantidad: ${productName} x${quantity}`);
+                        } else {
+                            console.log(`Producto sin cantidad especificada: ${productName}`);
+                        }
+                        
+                        // Find and update the product with improved matching
+                        let matchedProduct = null;
+                        
+                        // First try exact match
+                        matchedProduct = products.find(p => 
+                            p.name.toLowerCase() === productName.toLowerCase()
+                        );
+                        
+                        // If no exact match, try partial matches
+                        if (!matchedProduct) {
+                            // Try to find products that contain the name or vice versa
+                            const possibleMatches = products.filter(p => 
+                                p.name.toLowerCase().includes(productName.toLowerCase()) ||
+                                productName.toLowerCase().includes(p.name.toLowerCase())
+                            );
+                            
+                            if (possibleMatches.length === 1) {
+                                // If only one match, use it
+                                matchedProduct = possibleMatches[0];
+                            } else if (possibleMatches.length > 1) {
+                                // If multiple matches, find the closest one
+                                matchedProduct = possibleMatches.reduce((best, current) => {
+                                    const bestDiff = Math.abs(best.name.length - productName.length);
+                                    const currentDiff = Math.abs(current.name.length - productName.length);
+                                    return currentDiff < bestDiff ? current : best;
+                                }, possibleMatches[0]);
+                            }
+                        }
+                        
+                        if (matchedProduct) {
+                            matchedProduct.checked = true;
+                            matchedProduct.quantity = quantity;
+                            productsUpdated++;
+                            console.log(`Producto actualizado: ${matchedProduct.name} (cantidad: ${quantity})`);
+                        } else {
+                            console.log(`Producto no encontrado en la base de datos: ${productName}`);
+                        }
+                    }
+                }
+            }
+            
+            console.log(`Procesamiento completado: ${productsFound} productos encontrados, ${productsUpdated} actualizados`);
+            
+            // Ensure UI updates
+            saveData();
+            displayProducts();
+            
+            // Show confirmation message
+            alert(`Lista cargada: ${productsUpdated} productos actualizados de ${productsFound} encontrados en el archivo.`);
+        };
+        
+        reader.readAsText(file);
+    };
+    
+    input.click();
 }
