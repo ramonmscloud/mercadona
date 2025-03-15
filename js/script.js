@@ -83,11 +83,10 @@ async function loadProductsFromFile(retryCount = 3, delay = 1000) {
                     // The loadSavedList function will be called after this function
                     return;
                 } else {
-                    // No fallback data available, show a more user-friendly error
+                    // No fallback data available, log the error but don't show alert
                     console.error('Error final al cargar productos:', error);
-                    // Don't throw the error, just show a message and continue
-                    // This prevents the app from crashing
-                    alert(`Error al cargar los productos. Por favor, inténtelo de nuevo más tarde.`);
+                    // Don't throw the error, just continue silently
+                    // This prevents the app from crashing and doesn't show an alert
                     return;
                 }
             }
