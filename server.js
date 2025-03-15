@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuración del servidor
-const PORT = 3001;
+const PORT = 8000;
 
 /**
  * Definición de tipos MIME para diferentes extensiones de archivo

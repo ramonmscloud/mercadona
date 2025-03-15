@@ -11,31 +11,90 @@ let listObservations = ''; // Observaciones de la lista
 // Load products when the page loads
 // This function is merged with the authentication window.onload below
 
-// Function to load products from the CSV file
-async function loadProductsFromFile() {
-    try {
-        console.log('Intentando cargar productos desde CSV...');
-        const response = await fetch('compra mercadona.csv');
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
+// Function to load products from the CSV file with retry mechanism
+async function loadProductsFromFile(retryCount = 3, delay = 1000) {
+    // Check if we have products in localStorage first as a fallback
+    const savedList = localStorage.getItem('shopping_list');
+    let hasFallbackData = false;
+    
+    if (savedList) {
+        try {
+            const savedData = JSON.parse(savedList);
+            if (savedData.products && savedData.products.length > 0) {
+                console.log('Datos de respaldo encontrados en localStorage');
+                hasFallbackData = true;
+            }
+        } catch (e) {
+            console.error('Error al analizar datos de respaldo:', e);
         }
-        const content = await response.text();
-        console.log('CSV cargado correctamente, procesando datos...');
-        
-        // Process the CSV content
-        const rows = content.split('\n').map(row => row.split(';'));
-        const jsonData = rows.slice(1)
-            .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
-            .map(row => ({
-                Producto: row[1]?.trim() || '',
-                Pasillo: row[0]?.trim() || 'Sin Pasillo'
-            }));
-        
-        console.log(`Datos procesados: ${jsonData.length} productos encontrados`);
-        processExcelData(jsonData);
-    } catch (error) {
-        console.error('Error loading products:', error);
-        alert('Error al cargar los productos. Por favor, inténtelo de nuevo más tarde.');
+    }
+    
+    for (let attempt = 1; attempt <= retryCount; attempt++) {
+        try {
+            console.log(`Intento ${attempt} de ${retryCount} para cargar productos desde CSV...`);
+            const response = await fetch('compra mercadona.csv', {
+                headers: {
+                    'Content-Type': 'text/csv;charset=UTF-8'
+                },
+                // Add cache control to prevent caching issues
+                cache: 'no-cache'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+            
+            const content = await response.text();
+            if (!content.trim()) {
+                throw new Error('El archivo CSV está vacío');
+            }
+            
+            console.log('CSV cargado correctamente, procesando datos...');
+            
+            // Process the CSV content
+            const rows = content.split('\n').map(row => row.split(';'));
+            if (rows.length < 2) {
+                throw new Error('El archivo CSV no contiene datos válidos');
+            }
+            
+            const jsonData = rows.slice(1)
+                .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
+                .map(row => ({
+                    Producto: row[1]?.trim() || '',
+                    Pasillo: row[0]?.trim() || 'Sin Pasillo'
+                }));
+            
+            if (jsonData.length === 0) {
+                throw new Error('No se encontraron productos válidos en el CSV');
+            }
+            
+            console.log(`Datos procesados: ${jsonData.length} productos encontrados`);
+            processExcelData(jsonData);
+            return; // Success - exit the function
+            
+        } catch (error) {
+            console.error(`Error en el intento ${attempt}:`, error);
+            
+            // If this is the last attempt and we have fallback data, use it instead of showing an error
+            if (attempt === retryCount) {
+                if (hasFallbackData) {
+                    console.log('Usando datos de respaldo del localStorage después de fallos de carga');
+                    // We'll just continue with the existing data in localStorage
+                    // The loadSavedList function will be called after this function
+                    return;
+                } else {
+                    // No fallback data available, show a more user-friendly error
+                    console.error('Error final al cargar productos:', error);
+                    // Don't throw the error, just show a message and continue
+                    // This prevents the app from crashing
+                    alert(`Error al cargar los productos. Por favor, inténtelo de nuevo más tarde.`);
+                    return;
+                }
+            }
+            
+            // Wait before next retry
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
     }
 }
 
@@ -43,9 +102,9 @@ async function loadProductsFromFile() {
 function loadSavedList() {
     const savedList = localStorage.getItem('shopping_list');
     if (savedList) {
-        const savedProducts = JSON.parse(savedList);
+        const savedData = JSON.parse(savedList);
         products = products.map(p => {
-            const savedProduct = savedProducts.find(sp => sp.name === p.name);
+            const savedProduct = savedData.products.find(sp => sp.name === p.name);
             return savedProduct ? {...p, ...savedProduct} : p;
         });
         
@@ -343,29 +402,20 @@ function showMyList() {
 
 // Función para confirmar y borrar la lista del usuario
 function confirmDeleteList() {
-    if (confirm('¿Estás seguro de que deseas borrar tu lista de compras? Esta acción desmarcará todos los productos seleccionados.')) {
+    if (confirm('¿Estás seguro de que deseas borrar tu lista de compras y reiniciar la aplicación? Esta acción desmarcará todos los productos seleccionados.')) {
         clearUserList();
     }
 }
 
 function clearUserList() {
-    console.log('Borrando lista de usuario...');
+    console.log('Iniciando borrado de lista y reinicio de aplicación...');
     
-    // Reset all products to their initial state
-    products = products.map(product => ({
-        ...product,
-        checked: false,
-        quantity: 0
-    }));
-    
-    // Clear observations
-    listObservations = '';
-    document.getElementById('list-observations').value = '';
-    
-    // Clear user-specific data from localStorage
+    // Reset products array completely
     if (currentUser) {
+        // Remove user's specific list from localStorage
         localStorage.removeItem(`products_${currentUser}`);
-        // Reload from master list if available
+        
+        // If master list exists, load it with all items unchecked
         const masterProducts = localStorage.getItem('master_products_list');
         if (masterProducts) {
             products = JSON.parse(masterProducts).map(product => ({
@@ -373,33 +423,32 @@ function clearUserList() {
                 checked: false,
                 quantity: 0
             }));
+        } else {
+            // If no master list, initialize empty products array
+            products = [];
         }
     } else {
+        // For anonymous users, just remove the shopping list
         localStorage.removeItem('shopping_list');
     }
     
-    // Save the updated products list
+    // Clear observations
+    listObservations = '';
+    document.getElementById('list-observations').value = '';
+    
+    // Reset aisles based on current products
+    aisles = new Set(products.map(p => p.aisle));
+    updateAisleSelect();
+    
+    // Save the cleared state
     saveData();
     
-    // Ensure all checkboxes and quantity inputs are reset immediately
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    const quantityInputs = document.querySelectorAll('.quantity-input');
+    // Show confirmation
+    alert('Tu lista ha sido borrada correctamente. La aplicación se reiniciará.');
+    console.log('Lista borrada correctamente, reiniciando aplicación...');
     
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    
-    quantityInputs.forEach(input => {
-        input.value = '0';
-        input.disabled = true;
-    });
-    
-    // Force immediate UI refresh after DOM elements are updated
-    displayProducts(false);
-    
-    // Show confirmation message
-    alert('Tu lista ha sido borrada correctamente.');
-    console.log('Lista borrada correctamente');
+    // Reload the page to completely restart the application
+    window.location.reload();
 }
 
 // Funciones de persistencia de datos
@@ -455,13 +504,30 @@ window.onload = async function() {
         loadSavedList();
         console.log('Lista guardada cargada desde localStorage');
         
-        // Display products
+        // Display products - even if we have no products, display an empty list
         displayProducts();
         console.log('Productos mostrados en la UI');
     } catch (error) {
         console.error('Error durante la inicialización:', error);
-        alert('Error al inicializar la aplicación. Por favor, recarga la página.');
+        
+        // Try to recover by loading from localStorage
+        try {
+            console.log('Intentando recuperar desde localStorage...');
+            loadSavedList();
+            displayProducts();
+            console.log('Recuperación exitosa desde localStorage');
+        } catch (recoveryError) {
+            console.error('Error durante la recuperación:', recoveryError);
+            alert('Error al inicializar la aplicación. Por favor, recarga la página.');
+        }
     }
+    
+    // Add event listeners for error handling
+    window.addEventListener('error', function(e) {
+        console.error('Error global capturado:', e.error);
+        // Prevent the error from showing in the console
+        e.preventDefault();
+    });
 }
 
 // Función para generar un PDF con la lista de compras
