@@ -13,87 +13,69 @@ let listObservations = ''; // Observaciones de la lista
 
 // Function to load products from the CSV file with retry mechanism
 async function loadProductsFromFile(retryCount = 3, delay = 1000) {
-    // Check if we have products in localStorage first as a fallback
-    const savedList = localStorage.getItem('shopping_list');
-    let hasFallbackData = false;
-    
-    if (savedList) {
-        try {
-            const savedData = JSON.parse(savedList);
-            if (savedData.products && savedData.products.length > 0) {
-                console.log('Datos de respaldo encontrados en localStorage');
-                hasFallbackData = true;
-            }
-        } catch (e) {
-            console.error('Error al analizar datos de respaldo:', e);
+    try {
+        console.log('Iniciando carga de productos desde CSV...');
+        const response = await fetch('compra mercadona.csv', {
+            headers: {
+                'Content-Type': 'text/csv;charset=UTF-8'
+            },
+            cache: 'no-store' // Forzar recarga del archivo
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
         }
-    }
-    
-    for (let attempt = 1; attempt <= retryCount; attempt++) {
-        try {
-            console.log(`Intento ${attempt} de ${retryCount} para cargar productos desde CSV...`);
-            const response = await fetch('compra mercadona.csv', {
-                headers: {
-                    'Content-Type': 'text/csv;charset=UTF-8'
-                },
-                // Add cache control to prevent caching issues
-                cache: 'no-cache'
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
-            }
-            
-            const content = await response.text();
-            if (!content.trim()) {
-                throw new Error('El archivo CSV está vacío');
-            }
-            
-            console.log('CSV cargado correctamente, procesando datos...');
-            
-            // Process the CSV content
-            const rows = content.split('\n').map(row => row.split(';'));
-            if (rows.length < 2) {
-                throw new Error('El archivo CSV no contiene datos válidos');
-            }
-            
-            const jsonData = rows.slice(1)
-                .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
-                .map(row => ({
-                    Producto: row[1]?.trim() || '',
-                    Pasillo: row[0]?.trim() || 'Sin Pasillo'
-                }));
-            
-            if (jsonData.length === 0) {
-                throw new Error('No se encontraron productos válidos en el CSV');
-            }
-            
-            console.log(`Datos procesados: ${jsonData.length} productos encontrados`);
-            processExcelData(jsonData);
-            return; // Success - exit the function
-            
-        } catch (error) {
-            console.error(`Error en el intento ${attempt}:`, error);
-            
-            // If this is the last attempt and we have fallback data, use it instead of showing an error
-            if (attempt === retryCount) {
-                if (hasFallbackData) {
-                    console.log('Usando datos de respaldo del localStorage después de fallos de carga');
-                    // We'll just continue with the existing data in localStorage
-                    // The loadSavedList function will be called after this function
-                    return;
-                } else {
-                    // No fallback data available, log the error but don't show alert
-                    console.error('Error final al cargar productos:', error);
-                    // Don't throw the error, just continue silently
-                    // This prevents the app from crashing and doesn't show an alert
-                    return;
-                }
-            }
-            
-            // Wait before next retry
-            await new Promise(resolve => setTimeout(resolve, delay));
+        
+        const content = await response.text();
+        if (!content.trim()) {
+            throw new Error('El archivo CSV está vacío');
         }
+        
+        console.log('CSV cargado correctamente, procesando datos...');
+        
+        // Limpiar productos existentes
+        products = [];
+        
+        const rows = content.split('\n').map(row => row.split(';'));
+        if (rows.length < 2) {
+            throw new Error('El archivo CSV no contiene datos válidos');
+        }
+        
+        const jsonData = rows.slice(1)
+            .filter(row => row.length >= 2 && row[1] && row[1].trim() !== '')
+            .map(row => ({
+                Producto: row[1]?.trim() || '',
+                Pasillo: row[0]?.trim() || 'Sin Pasillo'
+            }));
+        
+        if (jsonData.length === 0) {
+            throw new Error('No se encontraron productos válidos en el CSV');
+        }
+        
+        console.log(`Datos procesados: ${jsonData.length} productos encontrados`);
+        
+        // Procesar y guardar como lista maestra
+        products = jsonData.map(row => ({
+            name: row.Producto,
+            aisle: row.Pasillo,
+            checked: false,
+            quantity: 0
+        }));
+        
+        // Actualizar pasillos
+        aisles = new Set(products.map(p => p.aisle));
+        console.log(`Pasillos encontrados: ${aisles.size}`);
+        
+        // Guardar como lista maestra
+        localStorage.setItem('master_products_list', JSON.stringify(products));
+        console.log('Lista maestra guardada');
+        
+        // Mostrar todos los productos
+        showAllItems();
+        
+    } catch (error) {
+        console.error('Error al cargar productos desde CSV:', error);
+        throw error; // Propagar el error para que sea manejado por window.onload
     }
 }
 
@@ -113,33 +95,6 @@ function loadSavedList() {
         
         displayProducts();
     }
-}
-
-function processExcelData(data) {
-    console.log('Procesando datos de productos...');
-    products = data
-        .filter(row => row.Producto && row.Producto.trim() !== '') // First filter out rows without a product name
-        .map(row => {
-            // Clean and validate the aisle name
-            let aisle = row.Pasillo && row.Pasillo.trim();
-            // If aisle is empty or just contains semicolons, assign default aisle
-            if (!aisle || aisle === ';' || aisle === ';;') {
-                aisle = 'Sin Pasillo';
-            }
-            return {
-                name: row.Producto.trim(),
-                aisle: aisle,
-                checked: false,
-                quantity: 0 // Default quantity value is 0 when unchecked
-            };
-        });
-
-    console.log(`Productos procesados: ${products.length}`);
-    aisles = new Set(products.map(p => p.aisle));
-    console.log(`Pasillos encontrados: ${aisles.size}`);
-    updateAisleSelect();
-    saveData();
-    displayProducts();
 }
 
 // Save data to localStorage
@@ -388,7 +343,6 @@ function showAllItems() {
                 quantity: 0
             }));
             aisles = new Set(products.map(p => p.aisle));
-            updateAisleSelect();
             saveData();
         }
     }
@@ -437,7 +391,6 @@ function clearUserList() {
     
     // Reset aisles based on current products
     aisles = new Set(products.map(p => p.aisle));
-    updateAisleSelect();
     
     // Save the cleared state
     saveData();
@@ -487,7 +440,6 @@ function loadUserList() {
     }
     
     aisles = new Set(products.map(p => p.aisle));
-    updateAisleSelect();
     displayProducts();
 }
 
@@ -495,31 +447,28 @@ function loadUserList() {
 window.onload = async function() {
     console.log('Inicializando aplicación...');
     try {
-        // Load products from CSV file
+        // Intentar cargar desde CSV primero
         await loadProductsFromFile();
         console.log('Productos cargados desde CSV');
-        
-        // Load saved list from localStorage
-        loadSavedList();
-        console.log('Lista guardada cargada desde localStorage');
-        
-        // Display products - even if we have no products, display an empty list
-        displayProducts();
-        console.log('Productos mostrados en la UI');
     } catch (error) {
         console.error('Error durante la inicialización:', error);
         
-        // Try to recover by loading from localStorage
-        try {
-            console.log('Intentando recuperar desde localStorage...');
-            loadSavedList();
-            displayProducts();
-            console.log('Recuperación exitosa desde localStorage');
-        } catch (recoveryError) {
-            console.error('Error durante la recuperación:', recoveryError);
+        // Intentar cargar desde localStorage como respaldo
+        const masterProducts = localStorage.getItem('master_products_list');
+        if (masterProducts) {
+            console.log('Cargando lista maestra desde localStorage...');
+            products = JSON.parse(masterProducts);
+            aisles = new Set(products.map(p => p.aisle));
+        } else {
+            console.error('No se pudo cargar ni desde CSV ni desde localStorage');
             alert('Error al inicializar la aplicación. Por favor, recarga la página.');
+            return;
         }
     }
+    
+    // Siempre mostrar todos los productos al iniciar
+    showAllItems();
+    console.log('Todos los productos mostrados en la UI');
     
     // Add event listeners for error handling
     window.addEventListener('error', function(e) {
