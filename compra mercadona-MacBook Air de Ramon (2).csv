@@ -3,7 +3,7 @@
 01 Pasillo limpieza;Flit (sin perfume, azul);
 01 Pasillo limpieza;Flit contra ácaros (marrón);
 01 Pasillo limpieza;Invernante Piscina;
-01 Pasillo limpieza;Ariel líquido (lavadora );
+01 Pasillo limpieza;Ariel líquido (lavadora);
 01 Pasillo limpieza;Fairy fregar verde;
 01 Pasillo limpieza;Fairy cápsulas lavavajillas;
 01 Pasillo limpieza;Agua destilada plancha;
@@ -92,9 +92,10 @@
 06 Pasillo Arroz;Latas fabada, jardinera;
 07 Pasillo Lácteos;Mantequilla;
 07 Pasillo Lácteos;Yogures;
+07 Pasillo Lácteos;Kefir 0.0 sin grasas sin azucares 3 unidades;
 07 Pasillo Lácteos;Danacol;
-07 Pasillo Lácteos;Kefir 0.0 sin grasas sin azucares 4;
 07 Pasillo Lácteos;Leche;
+asillo Lácteos;Pack 6 Leche nenas;
 08 Pasillo Bebidas;Agua con gas pack 6;
 08 Pasillo Bebidas;Agua Sara pack 6;
 08 Pasillo Bebidas;Agua Solán de Cabras 1.5 litros azul sin gas;
@@ -216,13 +217,13 @@
 14 Fruta;Uva blanca;
 14 Fruta;Lata piña;
 14 Fruta;Lata melocotón;
+15 Congelados;Hielo;
 15 Congelados;Papel aluminio;
 15 Congelados;Papel horno;
 15 Congelados;Bolsas de congelar con zip (pequeñas);
 15 Congelados;Alcachofas baby congeladas;
 15 Congelados;Habitas baby;
 15 Congelados;Helados hielo chocolate Paula;
-15 Congelados;Bolsa de cubitos de hielo;
 15 Congelados;Galletas de barquillo;
 15 Congelados;Coles de Bruselas;
 15 Congelados;Polos hielo pequeños Sara;
