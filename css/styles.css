@@ -345,3 +345,30 @@ body {
     font-size: 0.85em;
     font-style: italic;
 }
+
+/* ===== BOTÓN LEER LISTA ===== */
+.speak-btn {
+    background: linear-gradient(to right, #ff6f00, #e65100);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.speak-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(255, 111, 0, 0.3);
+}
+
+.speak-btn.speaking {
+    background: linear-gradient(to right, #d32f2f, #b71c1c);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}

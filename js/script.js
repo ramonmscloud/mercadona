@@ -844,6 +844,65 @@ function saveProductChanges() {
 }
 
 
+function speakText(text) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-ES';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+}
+
+function readListAloud() {
+    const btn = document.querySelector('.speak-btn');
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        if (btn) btn.classList.remove('speaking');
+        return;
+    }
+
+    const checkedProducts = products.filter(p => p.checked);
+    if (checkedProducts.length === 0) {
+        speakText('No hay productos marcados para comprar.');
+        return;
+    }
+
+    const grouped = {};
+    checkedProducts.forEach(product => {
+        if (!grouped[product.aisle]) {
+            grouped[product.aisle] = [];
+        }
+        grouped[product.aisle].push(product);
+    });
+
+    const sortedAisles = Object.keys(grouped).sort((a, b) => {
+        const aNum = parseInt(a.match(/^\d+/));
+        const bNum = parseInt(b.match(/^\d+/));
+        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+        return a.localeCompare(b);
+    });
+
+    let text = `Tienes ${checkedProducts.length} producto${checkedProducts.length !== 1 ? 's' : ''} en tu lista. `;
+    sortedAisles.forEach(aisle => {
+        const aisleMatch = aisle.match(/^\d+\s+(.+)/);
+        const aisleName = aisleMatch ? aisleMatch[1] : aisle;
+        const productsList = grouped[aisle]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(p => p.quantity > 1 ? `${p.name}, ${p.quantity} unidades` : p.name)
+            .join('. ');
+        text += `En ${aisleName}: ${productsList}. `;
+    });
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-ES';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    if (btn) btn.classList.add('speaking');
+    utterance.onend = () => { if (btn) btn.classList.remove('speaking'); };
+    utterance.onerror = () => { if (btn) btn.classList.remove('speaking'); };
+    window.speechSynthesis.speak(utterance);
+}
+
 function exportToText() {
     // Get checked products
     const checkedProducts = products.filter(p => p.checked);
