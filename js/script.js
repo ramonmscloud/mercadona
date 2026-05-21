@@ -867,31 +867,22 @@ function readListAloud() {
         return;
     }
 
-    const grouped = {};
-    checkedProducts.forEach(product => {
-        if (!grouped[product.aisle]) {
-            grouped[product.aisle] = [];
-        }
-        grouped[product.aisle].push(product);
+    const sorted = [...checkedProducts].sort((a, b) => {
+        const aNum = parseInt(a.aisle.match(/^\d+/));
+        const bNum = parseInt(b.aisle.match(/^\d+/));
+        if (!isNaN(aNum) && !isNaN(bNum) && aNum !== bNum) return aNum - bNum;
+        if (a.aisle !== b.aisle) return a.aisle.localeCompare(b.aisle);
+        return a.name.localeCompare(b.name);
     });
 
-    const sortedAisles = Object.keys(grouped).sort((a, b) => {
-        const aNum = parseInt(a.match(/^\d+/));
-        const bNum = parseInt(b.match(/^\d+/));
-        if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-        return a.localeCompare(b);
+    const parts = sorted.map(p => {
+        const aisleMatch = p.aisle.match(/^\d+\s+(.+)/);
+        const aisleName = aisleMatch ? aisleMatch[1] : p.aisle;
+        const qty = p.quantity > 1 ? `, ${p.quantity} unidades` : '';
+        return `${p.name}, en ${aisleName}${qty}`;
     });
 
-    let text = `Tienes ${checkedProducts.length} producto${checkedProducts.length !== 1 ? 's' : ''} en tu lista. `;
-    sortedAisles.forEach(aisle => {
-        const aisleMatch = aisle.match(/^\d+\s+(.+)/);
-        const aisleName = aisleMatch ? aisleMatch[1] : aisle;
-        const productsList = grouped[aisle]
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map(p => p.quantity > 1 ? `${p.name}, ${p.quantity} unidades` : p.name)
-            .join('. ');
-        text += `En ${aisleName}: ${productsList}. `;
-    });
+    const text = `Tienes ${checkedProducts.length} producto${checkedProducts.length !== 1 ? 's' : ''} en tu lista. ${parts.join('. ')}.`;
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-ES';
