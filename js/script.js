@@ -863,7 +863,14 @@ function readListAloud() {
 
     const checkedProducts = products.filter(p => p.checked);
     if (checkedProducts.length === 0) {
-        speakText('No hay productos marcados para comprar.');
+        const utterance = new SpeechSynthesisUtterance('No hay productos marcados para comprar.');
+        utterance.lang = 'es-ES';
+        utterance.rate = 1;
+        utterance.pitch = 1;
+        if (btn) btn.classList.add('speaking');
+        utterance.onend = () => { if (btn) btn.classList.remove('speaking'); };
+        utterance.onerror = () => { if (btn) btn.classList.remove('speaking'); };
+        window.speechSynthesis.speak(utterance);
         return;
     }
 
@@ -882,7 +889,7 @@ function readListAloud() {
         return `${p.name}, en ${aisleName}${qty}`;
     });
 
-    const text = `Tienes ${checkedProducts.length} producto${checkedProducts.length !== 1 ? 's' : ''} en tu lista. ${parts.join('. ')}.`;
+    const text = parts.join('. ') + '.';
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'es-ES';
