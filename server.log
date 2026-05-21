@@ -1,0 +1,22 @@
+Server running at http://localhost:8000/
+Request received for: /
+Attempting to serve: /Users/prus/Desktop/mercadona-main/index.html
+Successfully served: /Users/prus/Desktop/mercadona-main/index.html as text/html
+Request received for: /js/script.js
+Attempting to serve: /Users/prus/Desktop/mercadona-main/js/script.js
+Successfully served: /Users/prus/Desktop/mercadona-main/js/script.js as text/javascript
+Request received for: /js/script.js
+Attempting to serve: /Users/prus/Desktop/mercadona-main/js/script.js
+Successfully served: /Users/prus/Desktop/mercadona-main/js/script.js as text/javascript
+Request received for: /js/script.js
+Attempting to serve: /Users/prus/Desktop/mercadona-main/js/script.js
+Successfully served: /Users/prus/Desktop/mercadona-main/js/script.js as text/javascript
+Request received for: /js/script.js
+Attempting to serve: /Users/prus/Desktop/mercadona-main/js/script.js
+Successfully served: /Users/prus/Desktop/mercadona-main/js/script.js as text/javascript
+Request received for: /js/script.js
+Attempting to serve: /Users/prus/Desktop/mercadona-main/js/script.js
+Successfully served: /Users/prus/Desktop/mercadona-main/js/script.js as text/javascript
+Request received for: /css/styles.css
+Attempting to serve: /Users/prus/Desktop/mercadona-main/css/styles.css
+Successfully served: /Users/prus/Desktop/mercadona-main/css/styles.css as text/css

@@ -24,6 +24,16 @@
             <button onclick="loadTextFile()" class="control-btn" style="background-color: #28a745;">Cargar txt</button>
         </div>
 
+        <div class="sort-controls">
+            <button type="button" onclick="showByAisle()" id="btn-sort-aisle" class="sort-btn active" aria-pressed="true">Ver por Pasillo</button>
+            <button type="button" onclick="showAlphabetical()" id="btn-sort-alpha" class="sort-btn" aria-pressed="false">Ver A-Z</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Buscar producto..." aria-label="Buscar producto" oninput="handleSearchInput(this.value)">
+            <button id="clear-search-btn" class="clear-search-btn" onclick="clearSearch()" style="display: none;" aria-label="Limpiar búsqueda">❌</button>
+        </div>
+
         <div id="products-container" class="mobile-products">
             <!-- Los productos se cargarán dinámicamente aquí -->
         </div>

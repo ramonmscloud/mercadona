@@ -7,6 +7,9 @@ let aisles = new Set();  // Conjunto de pasillos disponibles (sin duplicados)
 let currentUser = null;  // Usuario actual
 let isAdmin = false;     // Indica si el usuario actual es administrador
 let listObservations = ''; // Observaciones de la lista
+let searchTerm = '';   // Termino de busqueda actual
+let currentViewMode = 'all'; // 'all' | 'checked'
+let sortMode = 'aisle'; // 'aisle' | 'alphabetical'
 
 // Load products when the page loads
 // This function is merged with the authentication window.onload below
@@ -93,7 +96,7 @@ function loadSavedList() {
         listObservations = savedData.observations || '';
         document.getElementById('list-observations').value = listObservations;
         
-        displayProducts();
+        displayProducts(currentViewMode === 'checked');
     }
 }
 
@@ -135,7 +138,7 @@ function saveData() {
 
 // Funciones de visualización
 function displayProducts(showOnlyChecked = false) {
-    console.log(`Mostrando productos (solo marcados: ${showOnlyChecked})`);
+    console.log(`Mostrando productos (solo marcados: ${showOnlyChecked}, modo: ${sortMode})`);
     console.log(`Total de productos disponibles: ${products.length}`);
     
     const container = document.getElementById('products-container');
@@ -145,14 +148,82 @@ function displayProducts(showOnlyChecked = false) {
     }
     container.innerHTML = '';
 
-    const groupedProducts = {};
-    products.forEach(product => {
-        if (!showOnlyChecked || product.checked) {
-            if (!groupedProducts[product.aisle]) {
-                groupedProducts[product.aisle] = [];
-            }
-            groupedProducts[product.aisle].push(product);
+    // Filtrar productos
+    const filteredProducts = products.filter(product => {
+        if (showOnlyChecked && !product.checked) {
+            return false;
         }
+        if (searchTerm && !product.name.toLowerCase().includes(searchTerm)) {
+            return false;
+        }
+        return true;
+    });
+
+    // Renderizar según modo de ordenación
+    if (sortMode === 'aisle') {
+        renderByAisle(filteredProducts, container);
+    } else {
+        renderAlphabetical(filteredProducts, container);
+    }
+    
+    console.log('Visualización de productos completada');
+}
+
+// Función auxiliar para mostrar mensaje de sin resultados
+function showNoResults(container) {
+    const noResults = document.createElement('div');
+    noResults.className = 'no-results-message';
+    noResults.textContent = searchTerm
+        ? `No se encontraron productos que coincidan con "${searchTerm}"`
+        : 'No hay productos para mostrar';
+    container.appendChild(noResults);
+}
+
+// Función auxiliar para generar el HTML de un producto
+function createProductItemHTML(product, showAisleLabel = false) {
+    const safeName = product.name.replace(/"/g, '&quot;');
+    const safeNameForAttr = product.name.replace(/'/g, "\\'");
+    
+    let labelText = product.name;
+    if (showAisleLabel) {
+        const aisleMatch = product.aisle.match(/^(\d+)\s+(.+)/);
+        const aisleDisplay = aisleMatch ? `(${aisleMatch[1]} ${aisleMatch[2]})` : `(${product.aisle})`;
+        labelText = `${product.name} <span class="aisle-label">${aisleDisplay}</span>`;
+    }
+    
+    return `
+        <input type="checkbox" id="${safeName}" 
+            ${product.checked ? 'checked' : ''}
+            onchange="toggleProduct('${safeNameForAttr}')"
+        >
+        <label for="${safeName}">${labelText}</label>
+        <input type="number" class="quantity-input" 
+            min="0" max="25" value="${product.checked ? (product.quantity || 1) : 0}" 
+            onchange="updateQuantity('${safeNameForAttr}', this.value)"
+            ${!product.checked ? 'disabled' : ''}
+            aria-label="Cantidad">
+        <button class="change-aisle-btn" onclick="toggleAisleSelector(this)" aria-label="Cambiar pasillo">
+            <span>⋮</span>
+        </button>
+        <div class="aisle-selector hidden">
+            <select onchange="changeAisle('${safeNameForAttr}', this.value)">
+                ${Array.from(aisles).sort().map(a => 
+                    `<option value="${a.replace(/"/g, '&quot;')}" ${a === product.aisle ? 'selected' : ''}>
+                        ${a}
+                    </option>`
+                ).join('')}
+            </select>
+        </div>
+    `;
+}
+
+function renderByAisle(filteredProducts, container) {
+    const groupedProducts = {};
+    filteredProducts.forEach(product => {
+        if (!groupedProducts[product.aisle]) {
+            groupedProducts[product.aisle] = [];
+        }
+        groupedProducts[product.aisle].push(product);
     });
 
     const aisleCount = Object.keys(groupedProducts).length;
@@ -167,6 +238,12 @@ function displayProducts(showOnlyChecked = false) {
         }
         return a.localeCompare(b);
     });
+
+    // Mostrar mensaje si no hay resultados
+    if (sortedAisles.length === 0) {
+        showNoResults(container);
+        return;
+    }
 
     sortedAisles.forEach(aisle => {
         const section = document.createElement('div');
@@ -190,38 +267,36 @@ function displayProducts(showOnlyChecked = false) {
             const item = document.createElement('div');
             item.className = 'product-item';
             
-            // Simplificar la interfaz móvil mostrando el selector de pasillo solo al hacer clic en un botón
-            item.innerHTML = `
-                <input type="checkbox" id="${product.name.replace(/"/g, '&quot;')}" 
-                    ${product.checked ? 'checked' : ''}
-                    onchange="toggleProduct('${product.name.replace(/'/g, "\\'")}')"
-                >
-                <label for="${product.name.replace(/"/g, '&quot;')}">${product.name}</label>
-                <input type="number" class="quantity-input" 
-                    min="0" max="25" value="${product.checked ? (product.quantity || 1) : 0}" 
-                    onchange="updateQuantity('${product.name.replace(/'/g, "\\'")}', this.value)"
-                    ${!product.checked ? 'disabled' : ''}
-                    aria-label="Cantidad">
-                <button class="change-aisle-btn" onclick="toggleAisleSelector(this)" aria-label="Cambiar pasillo">
-                    <span>⋮</span>
-                </button>
-                <div class="aisle-selector hidden">
-                    <select onchange="changeAisle('${product.name.replace(/'/g, "\\'")}', this.value)">
-                        ${Array.from(aisles).sort().map(a => 
-                            `<option value="${a.replace(/"/g, '&quot;')}" ${a === product.aisle ? 'selected' : ''}>
-                                ${a}
-                            </option>`
-                        ).join('')}
-                    </select>
-                </div>
-            `;
+            item.innerHTML = createProductItemHTML(product, false);
             section.appendChild(item);
         });
 
         container.appendChild(section);
     });
-    
-    console.log('Visualización de productos completada');
+}
+
+function renderAlphabetical(filteredProducts, container) {
+    // Mostrar mensaje si no hay resultados
+    if (filteredProducts.length === 0) {
+        showNoResults(container);
+        return;
+    }
+
+    // Ordenar productos alfabéticamente
+    const sortedProducts = [...filteredProducts].sort((a, b) => a.name.localeCompare(b.name));
+
+    const section = document.createElement('div');
+    section.className = 'aisle-section';
+
+    sortedProducts.forEach(product => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+
+        item.innerHTML = createProductItemHTML(product, true);
+        section.appendChild(item);
+    });
+
+    container.appendChild(section);
 }
 
 // Función para mostrar/ocultar el selector de pasillo en móviles
@@ -233,6 +308,68 @@ function toggleAisleSelector(button) {
 // Mejora la experiencia táctil detectando el tipo de dispositivo
 function isTouchDevice() {
     return ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+}
+
+// Función para manejar la entrada de búsqueda
+function handleSearchInput(value) {
+    searchTerm = value.toLowerCase().trim();
+
+    // Mostrar/ocultar botón de limpiar
+    const clearBtn = document.getElementById('clear-search-btn');
+    if (clearBtn) {
+        clearBtn.style.display = searchTerm ? 'block' : 'none';
+    }
+
+    // Refrescar la vista respetando el modo actual
+    displayProducts(currentViewMode === 'checked');
+}
+
+// Función auxiliar para resetear la UI de búsqueda
+function resetSearchUI() {
+    searchTerm = '';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    const clearBtn = document.getElementById('clear-search-btn');
+    if (clearBtn) {
+        clearBtn.style.display = 'none';
+    }
+}
+
+// Función para limpiar la búsqueda
+function clearSearch() {
+    resetSearchUI();
+    displayProducts(currentViewMode === 'checked');
+}
+
+// Función para activar modo por pasillo
+function showByAisle() {
+    sortMode = 'aisle';
+    updateSortButtons();
+    displayProducts(currentViewMode === 'checked');
+}
+
+// Función para activar modo alfabético
+function showAlphabetical() {
+    sortMode = 'alphabetical';
+    updateSortButtons();
+    displayProducts(currentViewMode === 'checked');
+}
+
+// Función para actualizar estilos de botones de ordenación
+function updateSortButtons() {
+    const btnAisle = document.getElementById('btn-sort-aisle');
+    const btnAlpha = document.getElementById('btn-sort-alpha');
+    
+    if (btnAisle) {
+        btnAisle.classList.toggle('active', sortMode === 'aisle');
+        btnAisle.setAttribute('aria-pressed', sortMode === 'aisle');
+    }
+    if (btnAlpha) {
+        btnAlpha.classList.toggle('active', sortMode === 'alphabetical');
+        btnAlpha.setAttribute('aria-pressed', sortMode === 'alphabetical');
+    }
 }
 
 // Inicialización con detección de dispositivo táctil
@@ -273,7 +410,7 @@ function toggleProduct(productName) {
         saveData();
         
         // Force a complete UI refresh to ensure all changes are reflected
-        displayProducts();
+        displayProducts(currentViewMode === 'checked');
     } else {
         console.error(`Producto no encontrado: ${productName}`);
     }
@@ -315,7 +452,7 @@ function updateQuantity(productName, quantity) {
         saveData();
         
         // Force a complete UI refresh to ensure all changes are reflected
-        displayProducts();
+        displayProducts(currentViewMode === 'checked');
         
         console.log(`Producto actualizado: ${product.name}, checked: ${product.checked}, quantity: ${product.quantity}`);
     } else {
@@ -328,11 +465,12 @@ function changeAisle(productName, newAisle) {
     if (product) {
         product.aisle = newAisle;
         saveData();
-        displayProducts();
+        displayProducts(currentViewMode === 'checked');
     }
 }
 
 function showAllItems() {
+    currentViewMode = 'all';
     // Si no es admin y no tiene productos cargados, intentar cargar la lista maestra
     if (!isAdmin && products.length === 0) {
         const masterProducts = localStorage.getItem('master_products_list');
@@ -350,6 +488,7 @@ function showAllItems() {
 }
 
 function showMyList() {
+    currentViewMode = 'checked';
     displayProducts(true);
 }
 
@@ -399,6 +538,13 @@ function clearUserList() {
     alert('Tu lista ha sido borrada correctamente. La aplicación se reiniciará.');
     console.log('Lista borrada correctamente, reiniciando aplicación...');
     
+    // Limpiar búsqueda
+    resetSearchUI();
+
+    // Resetear modo de ordenación
+    sortMode = 'aisle';
+    updateSortButtons();
+
     // Reload the page to completely restart the application
     window.location.reload();
 }
@@ -440,7 +586,7 @@ function loadUserList() {
     }
     
     aisles = new Set(products.map(p => p.aisle));
-    displayProducts();
+    displayProducts(currentViewMode === 'checked');
 }
 
 // Initialize the application when the page loads
@@ -476,6 +622,16 @@ window.onload = async function() {
         // Prevent the error from showing in the console
         e.preventDefault();
     });
+
+    // Inicializar campo de búsqueda
+    searchTerm = '';
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    // Inicializar botones de ordenación
+    updateSortButtons();
 }
 
 // Función para generar un PDF con la lista de compras
@@ -660,7 +816,7 @@ function deleteProduct(index) {
         products.splice(index, 1);
         saveData();
         showProductManagement(); // Refresh the list
-        displayProducts(); // Update main display
+        displayProducts(currentViewMode === 'checked'); // Update main display
     }
 }
 
@@ -678,7 +834,7 @@ function saveProductChanges() {
             products[index].aisle = newAisle;
             saveData();
             showProductManagement(); // Refresh the list
-            displayProducts(); // Update main display
+            displayProducts(currentViewMode === 'checked'); // Update main display
             nameInput.value = '';
             nameInput.dataset.editIndex = '';
         } else {
@@ -809,7 +965,7 @@ async function loadTextFile() {
 
         // Save and display
         saveData();
-        displayProducts();
+        displayProducts(currentViewMode === 'checked');
     };
 
     input.click();
