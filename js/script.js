@@ -258,9 +258,9 @@ function renderByAisle(filteredProducts, container) {
         
         section.innerHTML = `<h2>${aisleTitle}</h2>`;
 
-        // Ordenar productos alfabéticamente
+        // Mantener el orden original del CSV
         const sortedProducts = groupedProducts[aisle].sort((a, b) => 
-            a.name.localeCompare(b.name)
+            products.indexOf(a) - products.indexOf(b)
         );
 
         sortedProducts.forEach(product => {
