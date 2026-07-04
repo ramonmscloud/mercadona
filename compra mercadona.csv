@@ -1,13 +1,14 @@
 Pasillo;Artículo
 16 Final y Caldos;PILA ALCALINA LR
+01 Pasillo limpieza;Pastillas cloro trifuncion piscina
 01 Pasillo limpieza;Invernante Piscina
+01 Pasillo limpieza;DESENGRASANTE PISTOL
 01 Pasillo limpieza;Gel limpiador de baño
 01 Pasillo limpieza;AMONIACO PERFUMADO
 01 Pasillo limpieza;LIMPIAMUEBLES C/CERA
-01 Pasillo limpieza;TOALL.BEBE FRESC.
 01 Pasillo limpieza;PAÑUELO CAJA
-01 Pasillo limpieza;Flit contra ácaros (marrón)
 03 Droguería;Flit (sin perfume, azul)
+01 Pasillo limpieza;Flit contra ácaros (marrón)
 01 Pasillo limpieza;Ariel líquido (lavadora )
 01 Pasillo limpieza;Fairy fregar verde
 01 Pasillo limpieza;Fairy cápsulas lavavajillas
@@ -26,31 +27,30 @@ Pasillo;Artículo
 01 Pasillo limpieza;Guantes nitrilo medianos
 01 Pasillo limpieza;Guantes nitrilo pequeños
 01 Pasillo limpieza;Bobina mantel
-01 Pasillo limpieza;Papel cocina rollos
 03 Droguería;INSECTICIDA SIN PERF
-03 Droguería;ESPONJAS CON JABON
+03 Droguería;Antimosquitos Colonia Naranja
+01 Pasillo limpieza;Papel cocina rollos
 01 Pasillo limpieza;PASTILLAS ANTICAL
 01 Pasillo limpieza;LIMPIADOR CONCENTRAD
 01 Pasillo limpieza;ESTROPAJO INOX
-01 Pasillo limpieza;LIMPIADOR MOPA SPRAY
 02 Pasillo Galletas;Chocolate con almendra
-01 Pasillo limpieza;ROLLO HOGAR DOBLE
-02 Pan y Dulces;BARRA RÚSTICA
-02 Pan y Dulces;AZÚCAR MORENO 1KG
+01 Pasillo limpieza;LIMPIADOR MOPA SPRAY
+02 Pan y Dulces;Bolsa panecillos pequeños
+02 Pan y Dulces;Panecillos redondos Sara y Alicia
+02 Pan y Dulces;Barra campera y trocear
+02 Pan y Dulces;Chocolate con almendras
 02 Pan y Dulces;SACARINA LIQUIDA
+02 Pan y Dulces;Chuches Sara Alicia
+02 Pan y Dulces;AZÚCAR MORENO 1KG
 02 Pan y Dulces;Chocolate sin almendra
 02 Pan y Dulces;Azúcar
 02 Pan y Dulces;Barritas chocolate (chuches Sara)
-02 Pan y Dulces;Chuches Sara Alicia
 02 Pan y Dulces;Turrón
 02 Pan y Dulces;Pan de leche
-02 Pan y Dulces;Bolsa panecillos pequeños
-02 Pan y Dulces;Barra campera y trocear
-02 Pan y Dulces;Panecillos redondos Sara
 02 Pan y Dulces;Empanadillas crema salada
 02 Pan y Dulces;Empanadillas atún
+11 Pasillo Quesos y Embutidos;ACEITE VIRGEN
 11 Pasillo Quesos y Embutidos;Cuña queso  viejo
-11 Pasillo Quesos y Embutidos;GRANA PADANO RALLADO
 02 Pan y Dulces;TURRON BLANDO
 02 Pasillo Galletas;Miel
 02 Pasillo Galletas;Sacarina
@@ -68,44 +68,39 @@ Pasillo;Artículo
 03 Droguería;Bolsas blancas
 03 Droguería;Bolsas normales
 03 Droguería;Alcohol manos
+03 Droguería;Esponjas jabonosas (paq 10)
 03 Droguería;Pasta de dientes Sara Alicia
 03 Droguería;Pasta dientes
-03 Droguería;Jabón gel de baño de color
-03 Droguería;Jabón manos
+03 Droguería;Champú HS
 03 Droguería;Enjuague bucal clorhexidina
 03 Droguería;Enjuague bucal rosa (niñas)
 03 Droguería;Enjuague bucal verde
 03 Droguería;Desodorante
-03 Droguería;Esponjas jabonosas (paq 10)
 03 Droguería;Maquinillas afeitar
-03 Droguería;Champú HS
 03 Droguería;Toallas húmedas grandes
 03 Droguería;Hilo dental
+03 Droguería;Jabón gel de baño de color
+01 Pasillo limpieza;ROLLO HOGAR DOBLE
 01 Pasillo limpieza;Pañales de 10 a 14 kg (Talla 4)
-01 Pasillo limpieza;Toallitas bebé
 04 Pasillo Cereales;Avena en copo triturada
-04 Pasillo Cereales;Cereales avena (azul anillos)
-03 Droguería;Aceite de baño
+03 Droguería;Jabón manos
+04 Pasillo Cereales;Cornflakes 0 azúcar
+04 Pasillo Cereales;Zumo niñas
+04 Pasillo Cereales;Manzanilla
+04 Pasillo Cereales;TE VERDE HIERBABUENA
+04 Pasillo Cereales;Infusion Anis
+04 Pasillo Cereales;Té
 04 Pasillo Cereales;Tortas para taco mexicano
 04 Pasillo Cereales;Tarro tomate picante
 04 Pasillo Cereales;Café extrafuerte
 04 Pasillo Cereales;Zumo piña grande
-04 Pasillo Cereales;Zumo niñas
-04 Pasillo Cereales;Manzanilla
-04 Pasillo Cereales;Té
+05 Pasillo Lácteos;Leche entera  Paq pequeños
+09 Pasillo pescado Frescos;Salmón
+01 Pasillo limpieza;Toallitas bebé
 04 Pasillo Cereales;Cápsulas café Mercadona
-04 Pasillo Cereales;Cornflakes 0 azúcar
-04 Pasillo Cereales;TE VERDE HIERBABUENA
-04 Pasillo Cereales;COPOS DE AVENA
-07 Pasillo Lácteos;Leche entera  Paq pequeños
-09 Pasillo Congelados;FLTE BACALAO
-09 Pasillo Congelados;FILETE SALMÓN
 01 Pasillo limpieza;MANTEL DE PAPEL
-10 Pasillo Carne;CORDERO CHULETEADO
 04 Pasillo Cereales;GASIFICANTE REPOSTER
 01 Pasillo limpieza;MANTEL ROLLO COLORES
-04 Pasillo Cereales;T CHOCO CRUJIENTE
-01 Pasillo limpieza;DESENGRASANTE PISTOL
 05 Pescadería;Langostino hervido listo comer
 05 Pescadería;Gambón descongelado para cocinar
 05 Pescadería;Lubina
@@ -123,11 +118,11 @@ Pasillo;Artículo
 06 Pasillo Arroz;Latas fabada, jardinera
 06 Pasillo Arroz;ARROZ FALLERA
 06 Pasillo Arroz;GARBANZO M.COCIDO
-07 Pasillo Lácteos;Yogures 00 con frutas
-07 Pasillo Lácteos;Kefir 0.0 sin grasas sin azucares 4
-07 Pasillo Lácteos;Flan proteinico
-07 Pasillo Lácteos;Mouse chocolate Proteinico
-07 Pasillo Lácteos;Yogur proteinico  mango
+05 Pasillo Lácteos;Yogures 00 con frutas
+05 Pasillo Lácteos;Kefir 0.0 sin grasas sin azucares 4
+05 Pasillo Lácteos;Flan proteinico
+05 Pasillo Lácteos;Mouse chocolate Proteinico
+05 Pasillo Lácteos;Yogur proteinico  mango
 08 Pasillo Bebidas;Coca Cola con cafeína con azúcar 4 botellitas
 08 Pasillo Bebidas;Botella vino tinto
 08 Pasillo Bebidas;Botella vino blanco
@@ -137,6 +132,7 @@ Pasillo;Artículo
 08 Pasillo Bebidas;Agua con gas pack 6
 08 Pasillo Bebidas;Agua Sara pack 6
 08 Pasillo Bebidas;Agua Solán de Cabras 1.5 litros azul sin gas
+08 Pasillo Frutos Secos;Cabollitas blancas en vinagre
 08 Pasillo Frutos Secos;Pistachos
 08 Pasillo Frutos Secos;Pipas saladas
 08 Pasillo Frutos Secos;Pipas sin sal
@@ -145,58 +141,53 @@ Pasillo;Artículo
 08 Pasillo Frutos Secos;Pasas
 08 Pasillo Frutos Secos;Arándanos
 08 Pasillo Frutos Secos;Cacahuetes
-08 Pasillo Frutos Secos;Altramuces
-09 Pasillo Congelados;ALCACHOFA BABY
-09 Pasillo Congelados;ALCACHOFA PEQUEÑA
-09 Pasillo Congelados;B.CIERRA FÁCIL
-09 Pasillo Congelados;Salmón
-09 Pasillo Congelados;Merluza rebozada
-09 Pasillo Congelados;Pescaditos
-09 Pasillo Congelados;Bacalao congelado
-09 Pasillo Congelados;Gambas congeladas
-09 Pasillo Congelados;Calamares troceados congelados
-09 Pasillo Congelados;Lomos de merluza niñas (pack 6)
-09 Pasillo Congelados;Tinta negra congelada
+09 Pasillo pescado Frescos;Merluza rebozada
+15 Congelados;Habitas baby
+15 Congelados;Alcachofas baby congeladas
+09 Pasillo pescado Frescos;Lomos de merluza niñas (pack 6)
+09 Pasillo pescado Frescos;Pescaditos
+09 Pasillo pescado Frescos;Bacalao congelado
+09 Pasillo pescado Frescos;Gambas congeladas
+09 Pasillo pescado Frescos;FLTE BACALAO
+09 Pasillo pescado Frescos;Calamares troceados congelados
+09 Pasillo pescado Frescos;Tinta negra congelada
 16 Final y Caldos;Paquete caldo ave
 16 Final y Caldos;Paquete caldo pescado
-10 Pasillo Carne;BURGER VACUNO
 16 Final y Caldos;Fumet pescado
-10 Pasillo Carne;PLUMA IBERICA
 11 Pasillo Especias;SAZONADOR PAELLA
+10 Pasillo Carne;Huevos camperos (docena)
+10 Pasillo Carne;Chuletas de cordero
 10 Pasillo Carne;Pluma
 10 Pasillo Carne;Secreto
+10 Pasillo Carne;ALBONDIGAS 24 UNID.
 10 Pasillo Carne;Solomillo de cerdo ibérico
+10 Pasillo Carne;Pechuga deshuesada entera (pack 2)
+10 Pasillo Carne;2 Muslos y 2 contramuslos
+10 Pasillo Carne;PECHUGUITA POLLO ASA
+10 Pasillo Carne;SOLOMILLO PAVO
+10 Pasillo Carne;PECHUGA PAVO 92%
 10 Pasillo Carne;Carne picada vacuno 500g
 10 Pasillo Carne;Hamburguesas vacuno (pack 2)
 10 Pasillo Carne;Albóndigas
 10 Pasillo Carne;Pollo deshuesado muslos (pack 2)
-10 Pasillo Carne;Pechuga deshuesada entera (pack 2)
-10 Pasillo Carne;2 Muslos y 2 contramuslos
 10 Pasillo Carne;Pollo fileteado
 10 Pasillo Carne;Longaniza blanca
+10 Pasillo Carne;Muslos de pollo (pack 6)
 10 Pasillo Carne;Longaniza roja
 10 Pasillo Carne;6 pelotas
-10 Pasillo Carne;Chuletas de cordero
 10 Pasillo Carne;Conejo medio
 10 Pasillo Carne;Patas cordero congeladas
-10 Pasillo Carne;Muslos de pollo (pack 6)
 10 Pasillo Carne;Solomillo ternera (bandeja 3 filetes)
+11 Pasillo Quesos y Embutidos;Queso parmesano rallado
 10 Pasillo Carne;Carne guisar
-10 Pasillo Carne;Huevos camperos (docena)
 10 Pasillo Carne;SOLOMILLO AÑOJO
-10 Pasillo Carne;PECHUGUITA POLLO ASA
-10 Pasillo Carne;PECHUGA PAVO 92%
+11 Pasillo Quesos y Embutidos;GRANA PADANO RALLADO
 11 Pasillo Quesos y Embutidos;Queso fresco
-10 Pasillo Carne;POLLO 10% Y BECHAMEL
-10 Pasillo Carne;SOLOMILLO PAVO
-10 Pasillo Carne;ALBONDIGAS 24 UNID.
 11 Pasillo Quesos y Embutidos;Lomo de cebo
 11 Pasillo Quesos y Embutidos;Jamón de cebo
 11 Pasillo Quesos y Embutidos;Jamón lonchas cocinar
 11 Pasillo Quesos y Embutidos;Taquitos jamón
-11 Pasillo Quesos y Embutidos;Jamón York tierno niñas
-11 Pasillo Quesos y Embutidos;Taco jamón
-11 Pasillo Quesos y Embutidos;Taco de paté de pimienta
+11 Pasillo Quesos y Embutidos;Queso azul
 11 Pasillo Especias;Azafrán
 11 Pasillo Especias;Especias gazpachos
 11 Pasillo Especias;Piñones
@@ -208,26 +199,26 @@ Pasillo;Artículo
 11 Pasillo Especias;Orégano
 11 Pasillo Especias;Laurel
 11 Pasillo Especias;Comino
-11 Pasillo Quesos y Embutidos;ACEITE VIRGEN
-11 Pasillo Quesos y Embutidos;Queso azul
+11 Pasillo Quesos y Embutidos;Jamón York tierno niñas
+11 Pasillo Quesos y Embutidos;Taco jamón
+11 Pasillo Quesos y Embutidos;Taco de paté de pimienta
 11 Pasillo Quesos y Embutidos;HARINA DE TRIGO.
 11 Pasillo Quesos y Embutidos;LEVADURA PANADERIA
 11 Pasillo Quesos y Embutidos;Queso cuadrado lonchas
-11 Pasillo Quesos y Embutidos;Queso parmesano rallado
 11 Pasillo Quesos y Embutidos;Quesitos Caserío (doble)
 11 Pasillo Quesos y Embutidos;Membrillo
 11 Pasillo Quesos y Embutidos;Q OVEJA VIEJO
 12 Pasillo Precocinados;CAVIART.SUCED.NEGRO
-12 Pasillo Precocinados;Pizza común
-12 Pasillo Precocinados;Tortilla
+12 Pasillo Precocinados;Gazpacho andaluz (pack 3)
+12 Pasillo Precocinados;Hojas de hojaldre (pack de 2)
+12 Pasillo Precocinados;Salmón Ahumado
+12 Pasillo Precocinados;Pasta fresca (tipo tortellini) ojo fecha
 12 Pasillo Precocinados;Olivas partidas
 12 Pasillo Precocinados;Anchoas
-12 Pasillo Precocinados;Gazpacho andaluz (pack 3)
-12 Pasillo Precocinados;Salmorejo pequeño
-12 Pasillo Precocinados;Hojas de hojaldre (pack de 2)
-12 Pasillo Precocinados;Pasta fresca (tipo tortellini) ojo fecha
-12 Pasillo Precocinados;Salmón Ahumado
+12 Pasillo Precocinados;Pizza común
 12 Pasillo Precocinados;PIZZA JAMÓN SERRANO
+12 Pasillo Precocinados;Tortilla
+12 Pasillo Precocinados;Salmorejo pequeño
 13 Verdura;Lechuga pequeña (pack)
 13 Verdura;Berenjena
 13 Verdura;Calabacín
@@ -259,7 +250,7 @@ Pasillo;Artículo
 14 Fruta;Dátiles
 14 Fruta;Melocotones
 14 Fruta;Ciruelas
-03 Droguería;Antimosquitos Colonia Naranja
+03 Droguería;Aceite de baño
 14 Fruta;Nectarinas
 14 Fruta;Paraguayos
 14 Fruta;Naranjas
@@ -270,24 +261,22 @@ Pasillo;Artículo
 14 Fruta;Uva blanca
 14 Fruta;Lata piña
 14 Fruta;Lata melocotón
+15 Congelados;Coles de Bruselas
+15 Congelados;Bolsa de cubitos de hielo
 15 Congelados;Papel aluminio
 15 Congelados;Papel horno
 15 Congelados;Bolsas de congelar con zip (pequeñas)
-15 Congelados;Alcachofas baby congeladas
-15 Congelados;Habitas baby
-15 Congelados;Helados hielo chocolate Paula
-01 Pasillo limpieza;Pastillas cloro trifuncion piscina
-15 Congelados;Bolsa de cubitos de hielo
-15 Congelados;Galletas de barquillo
-15 Congelados;Coles de Bruselas
-07 Pasillo Lácteos;Mantequilla
-15 Congelados;Polos hielo pequeños Sara
 15 Congelados;Bolsas sin zip
-04 Pasillo Cereales;Infusion Anis
-02 Pan y Dulces;Chocolate con almendras
+15 Congelados;B.CIERRA FÁCIL
+15 Congelados;Helados hielo chocolate Paula
+05 Pasillo Lácteos;Mantequilla
+15 Congelados;Galletas de barquillo
+15 Congelados;Polos hielo pequeños Sara
+02 Pan y Dulces;BARRA RÚSTICA
 05 Pescadería;Sardinas
-08 Pasillo Frutos Secos;Almendras
-07 Pasillo Lácteos;Danacol
+08 Pasillo Frutos Secos;Altramuces
+05 Pasillo Lácteos;Danacol
 11 Pasillo Especias;Pimentón dulce
 11 Pasillo Especias;Sal Fina
 11 Pasillo Especias;Sal Gorda
+08 Pasillo Frutos Secos;Almendras
