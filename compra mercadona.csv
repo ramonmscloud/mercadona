@@ -7,7 +7,6 @@ Pasillo;Artículo
 01 Pasillo limpieza;AMONIACO PERFUMADO
 01 Pasillo limpieza;LIMPIAMUEBLES C/CERA
 01 Pasillo limpieza;PAÑUELO CAJA
-03 Droguería;Flit (sin perfume, azul)
 01 Pasillo limpieza;Flit contra ácaros (marrón)
 01 Pasillo limpieza;Ariel líquido (lavadora )
 01 Pasillo limpieza;Fairy fregar verde
@@ -19,7 +18,6 @@ Pasillo;Artículo
 01 Pasillo limpieza;Perlán detergente líquido ropa suave
 01 Pasillo limpieza;Alcohol de limpieza
 01 Pasillo limpieza;Friegasuelos 3 brujas verde
-01 Pasillo limpieza;Zafa roja
 01 Pasillo limpieza;Cillit Bang
 01 Pasillo limpieza;Caja grande Kleenex
 01 Pasillo limpieza;Palo de mocho
@@ -30,7 +28,6 @@ Pasillo;Artículo
 03 Droguería;INSECTICIDA SIN PERF
 03 Droguería;Antimosquitos Colonia Naranja
 01 Pasillo limpieza;Papel cocina rollos
-01 Pasillo limpieza;PASTILLAS ANTICAL
 01 Pasillo limpieza;LIMPIADOR CONCENTRAD
 01 Pasillo limpieza;ESTROPAJO INOX
 02 Pasillo Galletas;Chocolate con almendra
@@ -38,20 +35,15 @@ Pasillo;Artículo
 02 Pan y Dulces;Bolsa panecillos pequeños
 02 Pan y Dulces;Panecillos redondos Sara y Alicia
 02 Pan y Dulces;Barra campera y trocear
-02 Pan y Dulces;Chocolate con almendras
 02 Pan y Dulces;SACARINA LIQUIDA
 02 Pan y Dulces;Chuches Sara Alicia
+02 Pan y Dulces;Azúcar
 02 Pan y Dulces;AZÚCAR MORENO 1KG
 02 Pan y Dulces;Chocolate sin almendra
-02 Pan y Dulces;Azúcar
+02 Pan y Dulces;Chocolate con almendras
 02 Pan y Dulces;Barritas chocolate (chuches Sara)
-02 Pan y Dulces;Turrón
-02 Pan y Dulces;Pan de leche
-02 Pan y Dulces;Empanadillas crema salada
-02 Pan y Dulces;Empanadillas atún
 11 Pasillo Quesos y Embutidos;ACEITE VIRGEN
 11 Pasillo Quesos y Embutidos;Cuña queso  viejo
-02 Pan y Dulces;TURRON BLANDO
 02 Pasillo Galletas;Miel
 02 Pasillo Galletas;Sacarina
 02 Pasillo Galletas;Galletas avena redondas
@@ -79,11 +71,9 @@ Pasillo;Artículo
 03 Droguería;Maquinillas afeitar
 03 Droguería;Toallas húmedas grandes
 03 Droguería;Hilo dental
-03 Droguería;Jabón gel de baño de color
 01 Pasillo limpieza;ROLLO HOGAR DOBLE
 01 Pasillo limpieza;Pañales de 10 a 14 kg (Talla 4)
 04 Pasillo Cereales;Avena en copo triturada
-03 Droguería;Jabón manos
 04 Pasillo Cereales;Cornflakes 0 azúcar
 04 Pasillo Cereales;Zumo niñas
 04 Pasillo Cereales;Manzanilla
@@ -92,8 +82,6 @@ Pasillo;Artículo
 04 Pasillo Cereales;Té
 04 Pasillo Cereales;Tortas para taco mexicano
 04 Pasillo Cereales;Tarro tomate picante
-04 Pasillo Cereales;Café extrafuerte
-04 Pasillo Cereales;Zumo piña grande
 05 Pasillo Lácteos;Leche entera  Paq pequeños
 09 Pasillo pescado Frescos;Salmón
 01 Pasillo limpieza;Toallitas bebé
@@ -181,7 +169,6 @@ Pasillo;Artículo
 11 Pasillo Quesos y Embutidos;Queso parmesano rallado
 10 Pasillo Carne;Carne guisar
 10 Pasillo Carne;SOLOMILLO AÑOJO
-11 Pasillo Quesos y Embutidos;GRANA PADANO RALLADO
 11 Pasillo Quesos y Embutidos;Queso fresco
 11 Pasillo Quesos y Embutidos;Lomo de cebo
 11 Pasillo Quesos y Embutidos;Jamón de cebo
@@ -200,11 +187,8 @@ Pasillo;Artículo
 11 Pasillo Especias;Laurel
 11 Pasillo Especias;Comino
 11 Pasillo Quesos y Embutidos;Jamón York tierno niñas
-11 Pasillo Quesos y Embutidos;Taco jamón
-11 Pasillo Quesos y Embutidos;Taco de paté de pimienta
 11 Pasillo Quesos y Embutidos;HARINA DE TRIGO.
 11 Pasillo Quesos y Embutidos;LEVADURA PANADERIA
-11 Pasillo Quesos y Embutidos;Queso cuadrado lonchas
 11 Pasillo Quesos y Embutidos;Quesitos Caserío (doble)
 11 Pasillo Quesos y Embutidos;Membrillo
 11 Pasillo Quesos y Embutidos;Q OVEJA VIEJO
@@ -250,7 +234,6 @@ Pasillo;Artículo
 14 Fruta;Dátiles
 14 Fruta;Melocotones
 14 Fruta;Ciruelas
-03 Droguería;Aceite de baño
 14 Fruta;Nectarinas
 14 Fruta;Paraguayos
 14 Fruta;Naranjas
@@ -269,10 +252,8 @@ Pasillo;Artículo
 15 Congelados;Bolsas sin zip
 15 Congelados;B.CIERRA FÁCIL
 15 Congelados;Helados hielo chocolate Paula
-05 Pasillo Lácteos;Mantequilla
 15 Congelados;Galletas de barquillo
 15 Congelados;Polos hielo pequeños Sara
-02 Pan y Dulces;BARRA RÚSTICA
 05 Pescadería;Sardinas
 08 Pasillo Frutos Secos;Altramuces
 05 Pasillo Lácteos;Danacol
@@ -280,3 +261,7 @@ Pasillo;Artículo
 11 Pasillo Especias;Sal Fina
 11 Pasillo Especias;Sal Gorda
 08 Pasillo Frutos Secos;Almendras
+06 Pasillo Arroz;Pasta Caracolas
+08 Pasillo Frutos Secos;Aceitunas negras
+01 Pasillo limpieza;limpiador fregaplatos
+12 Pasillo Precocinados;Pasta pizza

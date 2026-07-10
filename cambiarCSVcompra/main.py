@@ -1,5 +1,10 @@
+import os
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog
+from tkinter import ttk, messagebox, simpledialog, filedialog
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak, Spacer
 
 from csv_handler import CsvHandler
 from duplicate_finder import DuplicateFinder
@@ -48,6 +53,9 @@ class MercadonaApp:
 
         ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=8, pady=2)
         ttk.Button(toolbar, text="📋 Copiar", command=self._on_copy).pack(side="left", padx=2)
+
+        ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=8, pady=2)
+        ttk.Button(toolbar, text="📄 Exportar PDF", command=self._on_export_pdf).pack(side="left", padx=2)
 
         ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=8, pady=2)
         ttk.Button(toolbar, text="Pasillos...", command=self._on_manage_pasillos).pack(side="left", padx=2)
@@ -273,6 +281,66 @@ class MercadonaApp:
         self.root.clipboard_clear()
         self.root.clipboard_append(text)
         self._status_var.set(f"Copiado: {text}")
+
+    def _on_export_pdf(self) -> None:
+        file_path = filedialog.asksaveasfilename(
+            parent=self.root,
+            title="Guardar PDF",
+            defaultextension=".pdf",
+            filetypes=[("PDF files", "*.pdf")],
+            initialfile="lista_mercadona.pdf",
+        )
+        if not file_path:
+            return
+
+        pasillos_order = self.csv.get_pasillos()
+        pasillo_articles: dict[str, list[str]] = {}
+        for pasillo in pasillos_order:
+            pasillo_articles[pasillo] = []
+        for r in self._all_rows:
+            p = r["Pasillo"]
+            pasillo_articles.setdefault(p, []).append(r["Articulo"])
+
+        doc = SimpleDocTemplate(
+            file_path,
+            pagesize=A4,
+            topMargin=50,
+            bottomMargin=40,
+            leftMargin=60,
+            rightMargin=60,
+        )
+        styles = getSampleStyleSheet()
+        title_style = styles["Heading1"]
+        list_style = ParagraphStyle(
+            "ArticleList",
+            parent=styles["Normal"],
+            fontSize=11,
+            leading=18,
+            leftIndent=20,
+            spaceBefore=2,
+            spaceAfter=2,
+        )
+
+        story = []
+        first = True
+        for pasillo in pasillos_order:
+            articles = pasillo_articles.get(pasillo, [])
+            if not articles:
+                continue
+            if not first:
+                story.append(PageBreak())
+            first = False
+            story.append(Paragraph(f"Pasillo: {pasillo}", title_style))
+            story.append(Spacer(1, 12))
+            for i, art in enumerate(articles, 1):
+                story.append(Paragraph(f"{i}. {art}", list_style))
+
+        if not story:
+            messagebox.showinfo("Info", "No hay articulos para exportar.")
+            return
+
+        doc.build(story)
+        self._status_var.set(f"PDF exportado: {os.path.basename(file_path)}")
 
     def _on_move_up(self) -> None:
         row, idx = self._cur_row(), None

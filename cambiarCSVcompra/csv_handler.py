@@ -1,8 +1,16 @@
 import csv
 import os
+import re
 from typing import Any
 
 CSV_PATH = os.path.join(os.path.dirname(__file__), "..", "compra mercadona.csv")
+
+
+def _pasillo_sort_key(name: str) -> tuple[int, str]:
+    nums = re.findall(r"\d+", name)
+    if nums:
+        return (int(nums[0]), name)
+    return (10**9, name)
 
 
 class CsvHandler:
@@ -35,6 +43,7 @@ class CsvHandler:
             if r["Pasillo"] not in seen:
                 seen.add(r["Pasillo"])
                 result.append(r["Pasillo"])
+        result.sort(key=_pasillo_sort_key)
         return result
 
     def get_pasillos_counts(self) -> list[tuple[str, int]]:
@@ -42,4 +51,4 @@ class CsvHandler:
         counts: dict[str, int] = {}
         for r in rows:
             counts[r["Pasillo"]] = counts.get(r["Pasillo"], 0) + 1
-        return sorted(counts.items(), key=lambda x: x[1], reverse=True)
+        return sorted(counts.items(), key=lambda x: _pasillo_sort_key(x[0]))

@@ -180,7 +180,7 @@ function showNoResults(container) {
 }
 
 // Función auxiliar para generar el HTML de un producto
-function createProductItemHTML(product, showAisleLabel = false) {
+function createProductItemHTML(product, showAisleLabel = false, showPlusButton = false) {
     const safeName = product.name.replace(/"/g, '&quot;');
     const safeNameForAttr = product.name.replace(/'/g, "\\'");
     
@@ -190,6 +190,25 @@ function createProductItemHTML(product, showAisleLabel = false) {
         const aisleDisplay = aisleMatch ? `(${aisleMatch[1]} ${aisleMatch[2]})` : `(${product.aisle})`;
         labelText = `${product.name} <span class="aisle-label">${aisleDisplay}</span>`;
     }
+    
+    const aisleChangerHTML = `
+        <button class="change-aisle-btn" onclick="toggleAisleSelector(this)" aria-label="Cambiar pasillo">
+            <span>⋮</span>
+        </button>
+        <div class="aisle-selector hidden">
+            <select onchange="changeAisle('${safeNameForAttr}', this.value)">
+                ${Array.from(aisles).sort().map(a => 
+                    `<option value="${a.replace(/"/g, '&quot;')}" ${a === product.aisle ? 'selected' : ''}>
+                        ${a}
+                    </option>`
+                ).join('')}
+            </select>
+        </div>`;
+
+    const plusButtonHTML = `
+        <button class="plus-quantity-btn" onclick="incrementProduct('${safeNameForAttr}')" aria-label="Aumentar cantidad">
+            <span>+</span>
+        </button>`;
     
     return `
         <input type="checkbox" id="${safeName}" 
@@ -202,18 +221,7 @@ function createProductItemHTML(product, showAisleLabel = false) {
             onchange="updateQuantity('${safeNameForAttr}', this.value)"
             ${!product.checked ? 'disabled' : ''}
             aria-label="Cantidad">
-        <button class="change-aisle-btn" onclick="toggleAisleSelector(this)" aria-label="Cambiar pasillo">
-            <span>⋮</span>
-        </button>
-        <div class="aisle-selector hidden">
-            <select onchange="changeAisle('${safeNameForAttr}', this.value)">
-                ${Array.from(aisles).sort().map(a => 
-                    `<option value="${a.replace(/"/g, '&quot;')}" ${a === product.aisle ? 'selected' : ''}>
-                        ${a}
-                    </option>`
-                ).join('')}
-            </select>
-        </div>
+        ${showPlusButton ? plusButtonHTML : aisleChangerHTML}
     `;
 }
 
@@ -267,7 +275,7 @@ function renderByAisle(filteredProducts, container) {
             const item = document.createElement('div');
             item.className = 'product-item';
             
-            item.innerHTML = createProductItemHTML(product, false);
+            item.innerHTML = createProductItemHTML(product, false, true);
             section.appendChild(item);
         });
 
@@ -457,6 +465,20 @@ function updateQuantity(productName, quantity) {
         console.log(`Producto actualizado: ${product.name}, checked: ${product.checked}, quantity: ${product.quantity}`);
     } else {
         console.error(`Producto no encontrado: ${productName}`);
+    }
+}
+
+function incrementProduct(productName) {
+    const product = products.find(p => p.name === productName);
+    if (product) {
+        if (!product.checked) {
+            product.checked = true;
+            product.quantity = 1;
+        } else {
+            product.quantity = Math.min((product.quantity || 0) + 1, 25);
+        }
+        saveData();
+        displayProducts(currentViewMode === 'checked');
     }
 }
 
