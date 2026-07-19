@@ -19,15 +19,12 @@ Pasillo;Artículo
 01 Pasillo limpieza;Alcohol de limpieza
 01 Pasillo limpieza;Friegasuelos 3 brujas verde
 01 Pasillo limpieza;Cillit Bang
-01 Pasillo limpieza;Caja grande Kleenex
 01 Pasillo limpieza;Palo de mocho
 01 Pasillo limpieza;Guantes nitrilo G
 01 Pasillo limpieza;Guantes nitrilo medianos
 01 Pasillo limpieza;Guantes nitrilo pequeños
-01 Pasillo limpieza;Bobina mantel
 03 Droguería;INSECTICIDA SIN PERF
 03 Droguería;Antimosquitos Colonia Naranja
-01 Pasillo limpieza;Papel cocina rollos
 01 Pasillo limpieza;LIMPIADOR CONCENTRAD
 01 Pasillo limpieza;ESTROPAJO INOX
 02 Pasillo Galletas;Chocolate con almendra
@@ -104,8 +101,6 @@ Pasillo;Artículo
 06 Pasillo Arroz;Bolsa patatas fritas
 06 Pasillo Arroz;Hojas de lasaña (caja con muchas) secas
 06 Pasillo Arroz;Latas fabada, jardinera
-06 Pasillo Arroz;ARROZ FALLERA
-06 Pasillo Arroz;GARBANZO M.COCIDO
 05 Pasillo Lácteos;Yogures 00 con frutas
 05 Pasillo Lácteos;Kefir 0.0 sin grasas sin azucares 4
 05 Pasillo Lácteos;Flan proteinico
@@ -115,7 +110,6 @@ Pasillo;Artículo
 08 Pasillo Bebidas;Botella vino tinto
 08 Pasillo Bebidas;Botella vino blanco
 08 Pasillo Bebidas;Casera (pack de 2)
-08 Pasillo Bebidas;PACK 4X500 ZERO
 08 Pasillo Bebidas;SIDRA
 08 Pasillo Bebidas;Agua con gas pack 6
 08 Pasillo Bebidas;Agua Sara pack 6
@@ -153,10 +147,8 @@ Pasillo;Artículo
 10 Pasillo Carne;2 Muslos y 2 contramuslos
 10 Pasillo Carne;PECHUGUITA POLLO ASA
 10 Pasillo Carne;SOLOMILLO PAVO
-10 Pasillo Carne;PECHUGA PAVO 92%
 10 Pasillo Carne;Carne picada vacuno 500g
 10 Pasillo Carne;Hamburguesas vacuno (pack 2)
-10 Pasillo Carne;Albóndigas
 10 Pasillo Carne;Pollo deshuesado muslos (pack 2)
 10 Pasillo Carne;Pollo fileteado
 10 Pasillo Carne;Longaniza blanca
@@ -189,7 +181,6 @@ Pasillo;Artículo
 11 Pasillo Quesos y Embutidos;Jamón York tierno niñas
 11 Pasillo Quesos y Embutidos;HARINA DE TRIGO.
 11 Pasillo Quesos y Embutidos;LEVADURA PANADERIA
-11 Pasillo Quesos y Embutidos;Quesitos Caserío (doble)
 11 Pasillo Quesos y Embutidos;Membrillo
 11 Pasillo Quesos y Embutidos;Q OVEJA VIEJO
 12 Pasillo Precocinados;CAVIART.SUCED.NEGRO
